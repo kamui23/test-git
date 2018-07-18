@@ -1,3 +1,4 @@
 Đến cả con khỉ cũng hiểu được lệnh Git
 pull: new pull
 add: new test
+c
