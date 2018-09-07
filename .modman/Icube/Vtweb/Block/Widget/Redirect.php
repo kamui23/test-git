@@ -33,14 +33,10 @@ class Redirect extends Template
      */
     protected $_orderConfig;
 
-    protected $_order;
-
     /**
      * @var \Magento\Framework\App\Http\Context
      */
     protected $httpContext;
-
-    protected $_objectManager;
 
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -50,8 +46,6 @@ class Redirect extends Template
         \Magento\Sales\Model\Order\Config $orderConfig,
         \Magento\Framework\App\Http\Context $httpContext,
         \Icube\Vtweb\Model\Vtweb $paymentConfig,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Framework\App\ObjectManager $objectManager,
         array $data = []
     )
     {
@@ -63,13 +57,12 @@ class Redirect extends Template
         $this->_isScopePrivate = true;
         $this->httpContext = $httpContext;
         $this->Config = $paymentConfig;
-        $this->_order = $order;
-        $this->_objectManager = $objectManager;
     }
 
     public function getGateUrl()
     {
-        $storeManager = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface');
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $om->get('Magento\Store\Model\StoreManagerInterface');
         $currentStore = $storeManager->getStore();
         $baseUrl = $currentStore->getBaseUrl(\Magento\Framework\UrlInterface::DEFAULT_URL_TYPE);
         $redirUrl = $baseUrl . 'vtweb/payment/redirect';
@@ -97,7 +90,8 @@ class Redirect extends Template
     public function isVisible()
     {
         $orderId = $this->_checkoutSession->getLastRealOrderId();
-        $order = $this->_order->load($orderId);
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $order = $om->create('Magento\Sales\Model\Order')->load($orderId);
         $payment = $order->getPayment();
         $code = $payment->getMethodInstance()->getCode();
         return ($code == \Icube\Vtweb\Model\Vtweb::VTWEB_PAYMENT_CODE);

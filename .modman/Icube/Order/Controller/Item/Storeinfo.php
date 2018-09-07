@@ -53,38 +53,39 @@ class Storeinfo extends \Magento\Framework\App\Action\Action
                 'region_id'   => $region->getRegionId()
             );
             return $this->resultJsonFactory->create()->setData($data);
-        }
-        $storecode = NULL;
-        $arraySku = array();
-        $arrayProdId = array();
-        $cartData = $quote->getAllItems();
-        foreach ($cartData as $item) {
-            if ($item->getStoreCode() != NULL) {
-                $storecode = $item->getStoreCode();
-                $arraySku[] = $item->getSku();
-                $arrayProdId[] = $item->getId();
+        } else {
+            $storecode = NULL;
+            $arraySku = array();
+            $arrayProdId = array();
+            $cartData = $quote->getAllItems();
+            foreach ($cartData as $item) {
+                if ($item->getStoreCode() != NULL) {
+                    $storecode = $item->getStoreCode();
+                    $arraySku[] = $item->getSku();
+                    $arrayProdId[] = $item->getId();
+                }
             }
+            $pos = $this->_posFactory->create()->load($storecode, 'store_code');
+            $region = $this->_regionFactory->create()->loadByCode($pos->getState(), $pos->getCountryCode());
+            $data = array(
+                'type'        => 'mixed',
+                'pickup_sku'  => $arraySku,
+                'pickup_id'   => $arrayProdId,
+                'store_name'  => $pos->getName(),
+                'street1'     => $pos->getAddressLine1(),
+                'street2'     => $pos->getAddressLine2(),
+                'city'        => $pos->getCity(),
+                'zip'         => $pos->getPostalCode(),
+                'phone'       => $pos->getMainPhone(),
+                'state'       => $pos->getState(),
+                'longitude'   => $pos->getLongitude(),
+                'latitude'    => $pos->getLatitude(),
+                'store_code'  => $pos->getStoreCode(),
+                'region_name' => $region->getName(),
+                'region_id'   => $region->getRegionId()
+            );
+            return $this->resultJsonFactory->create()->setData($data);
         }
-        $pos = $this->_posFactory->create()->load($storecode, 'store_code');
-        $region = $this->_regionFactory->create()->loadByCode($pos->getState(), $pos->getCountryCode());
-        $data = array(
-            'type'        => 'mixed',
-            'pickup_sku'  => $arraySku,
-            'pickup_id'   => $arrayProdId,
-            'store_name'  => $pos->getName(),
-            'street1'     => $pos->getAddressLine1(),
-            'street2'     => $pos->getAddressLine2(),
-            'city'        => $pos->getCity(),
-            'zip'         => $pos->getPostalCode(),
-            'phone'       => $pos->getMainPhone(),
-            'state'       => $pos->getState(),
-            'longitude'   => $pos->getLongitude(),
-            'latitude'    => $pos->getLatitude(),
-            'store_code'  => $pos->getStoreCode(),
-            'region_name' => $region->getName(),
-            'region_id'   => $region->getRegionId()
-        );
-        return $this->resultJsonFactory->create()->setData($data);
 
     }
 }

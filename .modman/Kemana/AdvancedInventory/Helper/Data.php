@@ -13,7 +13,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $_advancedInventory;
     protected $_storeManager;
     protected $_customer;
-    protected $_httpContext;
     protected $moduleManager;
 
     public function __construct(
@@ -22,8 +21,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Store\Model\StoreRepository $storeRepo,
         AdvancedInventoryFactory $advancedInventory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Customer\Model\Customer $customer, \Magento\Framework\Module\Manager $moduleManager,
-        \Magento\Framework\App\Http\Context $httpContext
+        \Magento\Customer\Model\Customer $customer, \Magento\Framework\Module\Manager $moduleManager
     )
     {
         $this->_productCollectionFactory = $productCollectionFactory;
@@ -33,13 +31,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_storeManager = $storeManager;
         $this->_customer = $customer;
         $this->moduleManager = $moduleManager;
-        $this->_httpContext = $httpContext;
     }
-
 
     public function isLoggedIn()
     {
-        return $this->_httpContext->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $context = $objectManager->get('Magento\Framework\App\Http\Context');
+        return $context->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
     }
 
     public function getConfigurableProductInStock($storeId, $groupId)
@@ -64,9 +62,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $storeCode = $this->_storeManager->getStore()->getCode();
 
         $session = 'customer_' . $storeCode . '_website';
-        $isLoggedIn = $this->isLoggedIn();
-        $groupId = $this->getGroupsId($isLoggedIn, $session);
-
+        if ($this->isLoggedIn()) {
+            $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
+            $groupId = $customer->getGroupId();
+        } else {
+            $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
+        }
         $arrayConfiguable = json_decode($this->getConfigurableProductInStock($storeId, $groupId));
 
         $idField = 'e.entity_id';
@@ -81,31 +82,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                    )->joinLeft(["pointofsale"], "advancedinventory_stock.place_id = pointofsale.place_id", []);
         $collection->getSelect()->where('pointofsale.country_code = "' . strtoupper($storeCode) . '" AND FIND_IN_SET(' . $groupId . ', pointofsale.customer_group )');
 
-        $havingCond = $this->getHavingCond($arrayConfiguable);
-        $collection->getSelect()
-            ->group($idField)
-            ->having($havingCond);
+        if ($arrayConfiguable) {
+            $arrayConfiguableStr = implode(',', $arrayConfiguable);
+            $collection->getSelect()
+                       ->group($idField)
+                       ->having('SUM(advancedinventory_stock.quantity_in_stock ) > 0 OR e.entity_id IN (' . $arrayConfiguableStr . ')');
+        } else {
+            $collection->getSelect()
+                       ->group($idField)
+                       ->having('SUM(advancedinventory_stock.quantity_in_stock ) > 0');
+        }
 
         $ids = $collection->getAllIds();
         return $ids;
-    }
-
-    protected function getGroupsId($isLoggedIn, $session) {
-        if ($isLoggedIn) {
-            $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
-            $groupId = $customer->getGroupId();
-            return $groupId;
-        }
-        $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
-        return $groupId;
-    }
-
-    protected function getHavingCond($arrayConfiguable) {
-        if ($arrayConfiguable) {
-            $arrayConfiguableStr = implode(',', $arrayConfiguable);
-            return 'SUM(advancedinventory_stock.quantity_in_stock ) > 0 OR e.entity_id IN (' . $arrayConfiguableStr . ')';
-        }
-        return 'SUM(advancedinventory_stock.quantity_in_stock ) > 0';
     }
 
 }

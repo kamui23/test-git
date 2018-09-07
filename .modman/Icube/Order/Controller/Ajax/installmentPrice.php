@@ -50,14 +50,11 @@ class installmentPrice extends \Magento\Framework\App\Action\Action
         $params = $this->getRequest()->getParams();
         if ($params['product_id'] != NULL) {
             $product = $this->_productFactory->create()->load($params['product_id']);
-            $isNotSimple = true;
             if ($product->getTypeId() == 'simple') {
                 $price = $this->_priceHelper->currency($product->getPriceInfo()->getPrice('final_price')->getValue(), true, false);
                 $response['0']['price'] = $price;
                 $response['0']['product_id'] = $params['product_id'];
-                $isNotSimple = false;
-            }
-            if($isNotSimple) {
+            } else {
                 $_children = $product->getTypeInstance()->getUsedProducts($product);
                 $count = 0;
                 foreach ($_children as $child) {

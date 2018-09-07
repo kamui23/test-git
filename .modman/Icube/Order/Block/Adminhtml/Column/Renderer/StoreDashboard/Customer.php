@@ -40,9 +40,9 @@ class Customer extends \Magento\Backend\Block\Widget\Grid\Column\Renderer\Abstra
         if ($id != NULL) {
             $url = $this->_urlBuilder->getUrl($this->_editUrl, ['id' => $id]);
             $output = '<a href="' . $url . '">' . $value . '</a>';
-            return $output;
+        } else {
+            $output = $value;
         }
-        $output = $value;
         return $output;
     }
 }

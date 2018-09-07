@@ -51,38 +51,21 @@ class Layer
         // var_dump($collection->getData());die;
         if ($category || isset($q)) {
             $array = $this->_helper->getArrayProductId($collection);
-//            if ($this->_helper->isEnable()) {
-//                $arrayBrand = $this->ruleProvider->getProductIdsActive();
-//                $farray = array_flip($array);
-//                $arrFinish = [];
-//                foreach ($arrayBrand as $v) {
-//                    if (isset($farray[$v])) {
-//                        $arrFinish[] = $v;
-//                    }
-//                }
-//                $collection->addFieldToFilter('entity_id', ['in' => $arrFinish]);
-//            } else {
-//                $collection->addFieldToFilter('entity_id', ['in' => $array]);
-//            }
-            $arrayFinish = $this->getArrayFinish($this->_helper->isEnable(), $array);
-            $collection->addFieldToFilter('entity_id', ['in' => $arrayFinish]);
+            if ($this->_helper->isEnable()) {
+                $arrayBrand = $this->ruleProvider->getProductIdsActive();
+                $farray = array_flip($array);
+                $arrFinish = [];
+                foreach ($arrayBrand as $v) {
+                    if (isset($farray[$v])) {
+                        $arrFinish[] = $v;
+                    }
+                }
+                $collection->addFieldToFilter('entity_id', ['in' => $arrFinish]);
+            } else {
+                $collection->addFieldToFilter('entity_id', ['in' => $array]);
+            }
         }
         return [$collection];
-    }
-
-    protected function getArrayFinish($isHelperEnable, $array) {
-        if ($isHelperEnable) {
-            $arrayBrand = $this->ruleProvider->getProductIdsActive();
-            $farray = array_flip($array);
-            $arrFinish = [];
-            foreach ($arrayBrand as $v) {
-                if (isset($farray[$v])) {
-                    $arrFinish[] = $v;
-                }
-            }
-            return $arrFinish;
-        }
-        return $array;
     }
 
     // public function afterGetProductCollection(\Magento\Catalog\Model\Layer $subject,$result){

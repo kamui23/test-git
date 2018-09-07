@@ -5,23 +5,17 @@ namespace Icube\Brands\Helper;
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     protected $moduleManager;
-    protected $_httpContext;
-    protected $_scopeConfig;
 
-    public function __construct(
-        \Magento\Framework\Module\Manager $moduleManager,
-        \Magento\Framework\App\Http\Context $httpContext,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-    )
+    public function __construct(\Magento\Framework\Module\Manager $moduleManager)
     {
         $this->moduleManager = $moduleManager;
-        $this->_httpContext = $httpContext;
-        $this->_scopeConfig = $scopeConfig;
     }
 
     public function getConfig()
     {
-        $value = $this->_scopeConfig->getValue(
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $scopeConfig = $om->create('Magento\Framework\App\Config\ScopeConfigInterface');
+        $value = $scopeConfig->getValue(
             'icube_brands/config/attribute_name',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
@@ -30,7 +24,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function isLoggedIn()
     {
-        return $this->_httpContext->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $context = $objectManager->get('Magento\Framework\App\Http\Context');
+        return $context->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
     }
 
     public function isEnable()

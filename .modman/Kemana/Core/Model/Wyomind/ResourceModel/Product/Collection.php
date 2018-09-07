@@ -55,8 +55,6 @@ class Collection extends \Wyomind\AdvancedInventory\Model\ResourceModel\Product\
             );
             $on = " AND advancedinventory_stock.place_id=pointofsale.place_id ";
         }
-
-        $isError = true;
         if ($itemId && $placeId) {
             $this->getSelect()->joinLeft(['advancedinventory_assignation' => $advancedinventoryAssignation], 'advancedinventory_assignation.item_id="' . $itemId . '" AND advancedinventory_assignation.place_id="' . $placeId . '"', [], null, 'left');
             $this->getSelect()->joinLeft(
@@ -64,9 +62,7 @@ class Collection extends \Wyomind\AdvancedInventory\Model\ResourceModel\Product\
                 "quantity_in_stock" => new \Zend_Db_Expr("SUM(IF(advancedinventory_stock.manage_stock=1,advancedinventory_stock.quantity_in_stock+IFNULL(advancedinventory_assignation.qty_assigned,0),0))")
             ], null, 'left'
             );
-            $isError = false;
-        }
-        if($isError) {
+        } else {
             $this->getSelect()->joinLeft(
                 ['advancedinventory_stock' => $advancedinventoryStock], 'e.entity_id=advancedinventory_stock.product_id ' . $on, [
                 "quantity_in_stock" => new \Zend_Db_Expr("SUM(IF(advancedinventory_stock.manage_stock=1,advancedinventory_stock.quantity_in_stock,0))")
@@ -126,7 +122,8 @@ class Collection extends \Wyomind\AdvancedInventory\Model\ResourceModel\Product\
         if (!empty($data[0])) {
             $obj = new \Magento\Framework\DataObject($data[0]);
             return $obj;
+        } else {
+            return new \Magento\Framework\DataObject();
         }
-        return new \Magento\Framework\DataObject();
     }
 }

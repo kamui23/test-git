@@ -121,19 +121,16 @@ class Collection extends RuleCollection implements SearchResultInterface
     {
         foreach ($this as $item) {
             $item->setMethods(explode(',', $item->getMethods()));
-            $itemStore = $item->getStores();
-            $custGroup = $item->getCustGroups();
-            $configItemStore = $this->getConfigStore($itemStore);
-            $configCustGroup = $this->getConfigStore($custGroup);
-            $item->setStores($configItemStore);
-            $item->setCustGroups($configCustGroup);
+            if ($item->getStores()) {
+                $item->setStores(explode(',', $item->getStores()));
+            } else {
+                $item->setStores(array('all'));
+            }
+            if ($item->getCustGroups()) {
+                $item->setCustGroups(explode(',', $item->getCustGroups()));
+            } else {
+                $item->setCustGroups(array('all'));
+            }
         }
-    }
-
-    protected function getConfigStore($configStore) {
-        if ($configStore) {
-            return explode(',', $configStore);
-        }
-        return array('all');
     }
 }

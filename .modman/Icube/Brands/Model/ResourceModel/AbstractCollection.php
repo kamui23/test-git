@@ -78,15 +78,11 @@ abstract class AbstractCollection extends \Magento\Framework\Model\ResourceModel
                         continue;
                     }
                     $storeIdKey = array_search(Store::DEFAULT_STORE_ID, $storesData[$linkedId], true);
-
-                    $noStoreKey = true;
                     if ($storeIdKey !== false) {
                         $stores = $this->storeManager->getStores(false, true);
                         $storeId = current($stores)->getId();
                         $storeCode = key($stores);
-                        $noStoreKey = false;
-                    }
-                    if($noStoreKey) {
+                    } else {
                         $storeId = current($storesData[$linkedId]);
                         $storeCode = $this->storeManager->getStore($storeId)->getCode();
                     }

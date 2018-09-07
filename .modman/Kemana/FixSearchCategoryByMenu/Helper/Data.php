@@ -9,22 +9,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $_storeManager;
     protected $_customer;
     protected $_modelMenu;
-    protected $_httpContext;
 
-    public function __construct(
-        \Ves\Megamenu\Model\Menu $modelMenu,
-        \Ves\Megamenu\Helper\Data $helperMenu,
-        \Magento\Framework\App\ResourceConnection $resourceCon,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Customer\Model\Customer $customer,
-        \Magento\Framework\App\Http\Context $httpContext
-    ) {
+    public function __construct(\Ves\Megamenu\Model\Menu $modelMenu, \Ves\Megamenu\Helper\Data $helperMenu, \Magento\Framework\App\ResourceConnection $resourceCon, \Magento\Store\Model\StoreManagerInterface $storeManager, \Magento\Customer\Model\Customer $customer)
+    {
         $this->_modelMenu = $modelMenu;
         $this->_helperMenu = $helperMenu;
         $this->_resourceCon = $resourceCon;
         $this->_storeManager = $storeManager;
         $this->_customer = $customer;
-        $this->_httpContext = $httpContext;
     }
 
     public function getMenuCategories()
@@ -32,8 +24,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $storeId = $this->_storeManager->getStore()->getId();
         $storeCode = $this->_storeManager->getStore()->getCode();
         $session = 'customer_' . $storeCode . '_website';
-        $isLoggedIn = $this->isLoggedIn();
-        $groupId = $this->getGroupIdentify($isLoggedIn, $session);
+        if ($this->isLoggedIn()) {
+            $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
+            $groupId = $customer->getGroupId();
+        } else {
+            $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
+        }
 
         $connection = $this->_resourceCon->getConnection();
         $select = $connection->select()->from(
@@ -75,17 +71,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function isLoggedIn()
     {
-        return $this->_httpContext->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
-    }
-
-    protected function getGroupIdentify($isLoggedIn, $session) {
-        if ($isLoggedIn) {
-            $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
-            $groupId = $customer->getGroupId();
-            return $groupId;
-        }
-        $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
-        return $groupId;
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $context = $objectManager->get('Magento\Framework\App\Http\Context');
+        return $context->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
     }
 
 }

@@ -24,21 +24,17 @@ class Router implements \Magento\Framework\App\RouterInterface
      */
     protected $_response;
 
-    protected $_branchFactory;
-
     /**
      * @param \Magento\Framework\App\ActionFactory $actionFactory
      * @param \Magento\Framework\App\ResponseInterface $response
      */
     public function __construct(
         \Magento\Framework\App\ActionFactory $actionFactory,
-        \Magento\Framework\App\ResponseInterface $response,
-        \Icube\Brands\Model\BrandFactory $brandFactory
+        \Magento\Framework\App\ResponseInterface $response
     )
     {
         $this->actionFactory = $actionFactory;
         $this->_response = $response;
-        $this->_branchFactory = $brandFactory;
     }
 
     /**
@@ -90,7 +86,8 @@ class Router implements \Magento\Framework\App\RouterInterface
         } else if (strpos($identifier, 'brand/') !== false) {
             $patharr = explode("/", $identifier);
             $urlpath = end($patharr);
-            $modelcollection = $this->_branchFactory->create()->getCollection();
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $modelcollection = $objectManager->get('\Icube\Brands\Model\BrandFactory')->create()->getCollection();
             $modelcollection->addFieldToFilter('category_url', $urlpath);
             if ($modelcollection->count() >= 1 && $brand = $modelcollection->getFirstItem()) {
                 // var_dump($brand->debug());
@@ -99,11 +96,14 @@ class Router implements \Magento\Framework\App\RouterInterface
                 $request->setAlias(\Magento\Framework\UrlInterface::REWRITE_REQUEST_PATH_ALIAS, '/' . $identifier);
                 $request->setPathInfo('/' . $identifier);
                 return;
+            } else {
+                // not found any Category URL
+                return null;
             }
-            // not found any Category URL
+
+        } else {
+            //There is no match
             return null;
         }
-        //There is no match
-        return null;
     }
 }

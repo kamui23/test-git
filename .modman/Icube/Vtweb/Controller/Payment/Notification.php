@@ -77,7 +77,6 @@ class Notification extends \Magento\Framework\App\Action\Action
         $logger->info($_info);
         ##log notif vtweb
 
-        $isError = true;
         if ($transaction == 'capture') {
             $order->setInstallmentTenor($notif->installment_term);
             if ($fraud == 'challenge') {
@@ -105,11 +104,9 @@ class Notification extends \Magento\Framework\App\Action\Action
                     $this->orderCommentSender->send($order);
                 }
             }
-            $isError = false;
         } else if ($transaction == 'cancel' || $transaction == 'deny') {
             $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED);
             $order->addStatusToHistory(\Magento\Sales\Model\Order::STATE_CANCELED);
-            $isError = false;
         } else if ($transaction == 'settlement') {
 
             if ($payment_type != 'credit_card') {
@@ -134,18 +131,14 @@ class Notification extends \Magento\Framework\App\Action\Action
                 }
 
             }
-            $isError = false;
         } else if ($transaction == 'pending') {
             $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
             //            $order->sendOrderUpdateEmail(true,'Thank you, your payment is successfully processed.');
         } else if ($transaction == 'cancel') {
             $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED);
-            $isError = false;
         } else if ($transaction == 'expire') {
             $order->setStatus(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT);
-            $isError = false;
-        }
-        if($isError) {
+        } else {
             $order->setStatus(\Magento\Sales\Model\Order::STATUS_FRAUD);
         }
         $order->save();

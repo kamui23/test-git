@@ -23,8 +23,9 @@ class Save extends \Magento\User\Controller\Adminhtml\User\Save
     {
         if (!($this->securityCookie instanceof SecurityCookie)) {
             return \Magento\Framework\App\ObjectManager::getInstance()->get(SecurityCookie::class);
+        } else {
+            return $this->securityCookie;
         }
-        return $this->securityCookie;
     }
 
     /**
@@ -81,10 +82,12 @@ class Save extends \Magento\User\Controller\Adminhtml\User\Save
             $saveduser = $model->save();
 
             $adminpos = $this->_objectManager->create('Icube\Order\Model\AdminPos');
-            if (!isset($data['user_id']) || !$adminpos->load($data['user_id'], 'user_id')->getStoreCode()) {
+            if (isset($data['user_id']) && $adminpos->load($data['user_id'], 'user_id')->getStoreCode()) {
+                $adminpos->setStoreCode($data['store_permission']);
+            } else {
                 $adminpos->setUserId($saveduser['user_id']);
+                $adminpos->setStoreCode($data['store_permission']);
             }
-            $adminpos->setStoreCode($data['store_permission']);
             $adminpos->save();
 
 

@@ -178,7 +178,7 @@ class Jnetruckingrate extends \Magento\Shipping\Model\Carrier\AbstractCarrier im
 
         }
 
-        $isError = true;
+
         if (!empty($rates)) {
             $count = 0;
             foreach ($rates as $rate) {
@@ -195,10 +195,8 @@ class Jnetruckingrate extends \Magento\Shipping\Model\Carrier\AbstractCarrier im
                     $result->append($method);
                 }
             }
-            $isError = false;
-        }
 
-        if($isError) {
+        } else {
             /** @var \Magento\Quote\Model\Quote\Address\RateResult\Error $error */
             $error = $this->_rateErrorFactory->create(
                 [

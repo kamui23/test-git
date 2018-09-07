@@ -67,14 +67,13 @@ class GetConfiguable
                 if (count($itemExist->getData())) {
                     $itemExist->setData('content', json_encode($productIds));
                     $itemExist->save();
-                    return;
+                } else {
+                    $advancedInventoryObject = $this->_advancedInventory->create();
+                    $advancedInventoryObject->setData('store_id', $store['store_id']);
+                    $advancedInventoryObject->setData('customer_group_id', $customer_group_id);
+                    $advancedInventoryObject->setData('content', json_encode($productIds));
+                    $advancedInventoryObject->save();
                 }
-                $advancedInventoryObject = $this->_advancedInventory->create();
-                $advancedInventoryObject->setData('store_id', $store['store_id']);
-                $advancedInventoryObject->setData('customer_group_id', $customer_group_id);
-                $advancedInventoryObject->setData('content', json_encode($productIds));
-                $advancedInventoryObject->save();
-                return;
             }
         }
     }

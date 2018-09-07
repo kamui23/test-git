@@ -71,9 +71,9 @@ class Save extends \Icube\Brands\Controller\Adminhtml\Items
                 $id = (int)$this->getRequest()->getParam('id');
                 if (!empty($id)) {
                     $this->_redirect('icube_brands/*/edit', ['id' => $id]);
-                    return;
+                } else {
+                    $this->_redirect('icube_brands/*/new');
                 }
-                $this->_redirect('icube_brands/*/new');
                 return;
             } catch (\Exception $e) {
                 $this->messageManager->addError(

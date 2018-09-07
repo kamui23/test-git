@@ -31,10 +31,11 @@ class Sidebar extends \Magento\Framework\View\Element\Template
     {
         if ($this->_customerSession->isLoggedIn()):
             $customerGroupId = $this->_customerSession->getCustomer()->getGroupId();
-            return $customerGroupId;
+        else:
+            $customerGroupId = 0;
         endif;
 
-        return 0;
+        return $customerGroupId;
     }
 
     public function getStoreId()
