@@ -49,15 +49,21 @@ class DefaultRenderer extends \Magento\Sales\Block\Adminhtml\Order\View\Items\Re
                 $html = $this->displayPriceAttribute('discount_amount');
                 break;
             case 'pick-up':
-                if ($item->getStoreCode() == NULL) {
-                    $html = 'Delivery';
-                } else {
-                    $html = $item->getStoreCode();
-                }
+                $storeCode = $item->getStoreCode();
+                $html = $this->getHtmlCode($storeCode);
                 break;
             default:
                 $html = parent::getColumnHtml($item, $column, $field);
         }
+        return $html;
+    }
+
+    protected function getHtmlCode($storeCode) {
+        if ($storeCode == NULL) {
+            $html = 'Delivery';
+            return $html;
+        }
+        $html = $storeCode;
         return $html;
     }
 

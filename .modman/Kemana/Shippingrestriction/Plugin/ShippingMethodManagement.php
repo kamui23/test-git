@@ -11,7 +11,7 @@ class ShippingMethodManagement
     protected $_totalsCollector;
     protected $_allRules = null;
     protected $_ruleCollection;
-    protected $_output   = [];
+    protected $_output = [];
     protected $_addressRepository;
 
     /**
@@ -176,16 +176,22 @@ class ShippingMethodManagement
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
                 $rules = $this->getRules($shippingAddress, $items);
-                if (count($rules)) {
-                    foreach ($rules as $rule) {
-                        if (!$rule->restrict($rate)) {
-                            $this->_output[] = $this->_converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
-                        }//if restrict
-                    }//rules
-                } else {
-                    $this->_output[] = $this->_converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
-                }
+                $this->_output = $this->getOutputConverter($rules, $rate, $quote);
             }
         }
+    }
+
+    protected function getOutputConverter($rules, $rate, $quote) {
+        $outputConverter = [];
+        if (count($rules)) {
+            foreach ($rules as $rule) {
+                if (!$rule->restrict($rate)) {
+                    $outputConverter[] = $this->_converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
+                }//if restrict
+            }//rules
+            return $outputConverter;
+        }
+        $outputConverter[] = $this->_converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
+        return $outputConverter;
     }
 }

@@ -6,15 +6,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     protected $moduleManager;
 
-    public function __construct(\Magento\Framework\Module\Manager $moduleManager)
-    {
+    protected $_objectManager;
+
+    public function __construct(
+        \Magento\Framework\Module\Manager $moduleManager,
+        \Magento\Framework\App\ObjectManager $objectManager
+    ) {
         $this->moduleManager = $moduleManager;
+        $this->_objectManager = $objectManager;
     }
 
     public function getConfig()
     {
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $om->create('Magento\Framework\App\Config\ScopeConfigInterface');
+        $scopeConfig = $this->_objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
         $value = $scopeConfig->getValue(
             'icube_brands/config/attribute_name',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -24,8 +28,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function isLoggedIn()
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $context = $objectManager->get('Magento\Framework\App\Http\Context');
+        $context = $this->_objectManager->get('Magento\Framework\App\Http\Context');
         return $context->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
     }
 

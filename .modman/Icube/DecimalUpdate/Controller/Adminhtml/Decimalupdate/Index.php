@@ -16,6 +16,8 @@ class Index extends \Magento\Backend\App\Action
      */
     protected $_logger;
 
+    protected $_objectManager;
+
     /**
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Psr\Log\LoggerInterface $logger
@@ -24,10 +26,12 @@ class Index extends \Magento\Backend\App\Action
 
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
-        \Psr\Log\LoggerInterface $logger
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\App\ObjectManager $objectManager
     )
     {
         $this->_logger = $logger;
+        $this->_objectManager = $objectManager;
         parent::__construct($context);
     }
 
@@ -39,10 +43,8 @@ class Index extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
-        $scopeConfig = $objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface');
+        $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
+        $scopeConfig = $this->_objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface');
         $connection = $resource->getConnection();
 
         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
@@ -64,14 +66,17 @@ class Index extends \Magento\Backend\App\Action
             $result3 = $connection->query($value1['TABLE_NAME']);
         }
 
-        if ($result && $result1) {
-            $response['status'] = 'success';
-        } else {
-            $response['status'] = 'query already run';
-        }
+        $response['status'] = $this->getStatusTxt($result, $result1);
 
         $this->getResponse()->representJson(
             $this->_objectManager->get('Magento\Framework\Json\Helper\Data')->jsonEncode($response)
         );
+    }
+
+    protected function getStatusTxt($result, $result1) {
+        if ($result && $result1) {
+            return 'success';
+        }
+        return 'query already run';
     }
 }

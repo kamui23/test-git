@@ -174,45 +174,62 @@ class Rateimportfile extends Command
         $WebsiteId = 1;
 
         // validate country
+        $isInvalidCountry = true;
         if (isset($this->_importIso2Countries[$row[0]])) {
             $countryId = $this->_importIso2Countries[$row[0]];
+            $isInvalidCountry = false;
         } elseif (isset($this->_importIso3Countries[$row[0]])) {
             $countryId = $this->_importIso3Countries[$row[0]];
+            $isInvalidCountry = false;
         } elseif ($row[0] == '*' || $row[0] == '') {
             $countryId = '0';
-        } else {
+            $isInvalidCountry = false;
+        }
+        if($isInvalidCountry) {
             $this->_importErrors[] = __('Please correct Country "%1" in the Row #%2.', $row[0], $rowNumber);
             return false;
         }
 
         // validate region
+        $isInvalidRegion = true;
         if ($countryId != '0' && isset($this->_importRegions[$countryId][$row[1]])) {
             $regionId = $this->_importRegions[$countryId][$row[1]];
+            $isInvalidRegion = false;
         } elseif ($row[1] == '*' || $row[1] == '') {
             $regionId = 0;
-        } else {
+            $isInvalidRegion = false;
+        }
+        if($isInvalidRegion) {
             $this->_importErrors[] = __('Please correct Region/State "%1" in the Row #%2.', $row[1], $rowNumber);
             return false;
         }
         // detect city
+        $isInvalidCity = true;
         if ($row[2] == '*' || $row[2] == '') {
             $city = '*';
-        } else {
+            $isInvalidCity = false;
+        }
+        if($isInvalidCity) {
             $city = $row[2];
         }
 
         // detect zip code
+        $isInvalidZip = true;
         if ($row[3] == '*' || $row[3] == '') {
             $zipCode = '*';
-        } else {
+            $isInvalidZip = false;
+        }
+        if($isInvalidZip) {
             $zipCode = $row[3];
         }
 
         // detect weight From
-
+        $isInvalidWeightFrom = true;
         if ($row[4] == '*' || $row[4] == '') {
             $weight_from = '0.0000';
-        } else {
+            $isInvalidWeightFrom = false;
+        }
+        if($isInvalidWeightFrom) {
             $weight_from = $this->_parseDecimalValue($row[4]);
             if ($weight_from === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -223,9 +240,12 @@ class Rateimportfile extends Command
         }
 
         // detect weight to
+        $isInvalidWeightTo = true;
         if ($row[5] == '*' || $row[5] == '') {
             $weight_to = '0.0000';
-        } else {
+            $isInvalidWeightTo = false;
+        }
+        if($isInvalidWeightTo) {
             $weight_to = $this->_parseDecimalValue($row[5]);
             if ($weight_to === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -236,9 +256,12 @@ class Rateimportfile extends Command
         }
 
         // detect price from
+        $isInvalidPriceFrom = true;
         if ($row[6] == '*' || $row[6] == '') {
             $price_from = '0.0000';
-        } else {
+            $isInvalidPriceFrom = false;
+        }
+        if($isInvalidPriceFrom) {
             $price_from = $this->_parseDecimalValue($row[6]);
             if ($price_from === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -249,9 +272,12 @@ class Rateimportfile extends Command
         }
 
         // detect price to
+        $isInvalidPriceTo = true;
         if ($row[7] == '*' || $row[7] == '') {
             $price_to = '0.0000';
-        } else {
+            $isInvalidWeightTo = false;
+        }
+        if($isInvalidWeightTo) {
             $price_to = $this->_parseDecimalValue($row[7]);
             if ($price_to === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -262,16 +288,22 @@ class Rateimportfile extends Command
         }
 
         // detect Qty from
+        $isInvalidQtyFrom = true;
         if ($row[8] == '*' || $row[8] == '') {
             $qty_from = '0';
-        } else {
+            $isInvalidQtyFrom = false;
+        }
+        if($isInvalidQtyFrom) {
             $qty_from = $row[8];
         }
 
         // detect Qty to
+        $isInvalidQtyTo = true;
         if ($row[9] == '*' || $row[9] == '') {
             $qty_to = '0';
-        } else {
+            $isInvalidQtyTo = false;
+        }
+        if($isInvalidQtyTo) {
             $qty_to = $row[9];
         }
 
@@ -291,9 +323,12 @@ class Rateimportfile extends Command
         $etd = $row[12];
 
         // detect min weight
+        $isInvalidMinWeight = true;
         if ($row[13] == '*' || $row[13] == '') {
             $weight_min = '0';
-        } else {
+            $isInvalidMinWeight = false;
+        }
+        if($isInvalidMinWeight) {
             $weight_min = $row[13];
         }
 

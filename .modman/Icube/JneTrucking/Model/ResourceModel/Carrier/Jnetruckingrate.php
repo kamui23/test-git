@@ -57,6 +57,8 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
 
     protected $_citySession;
 
+    protected $_objectManager;
+
     public function __construct(
 
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
@@ -68,6 +70,7 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionCollectionFactory,
         \Magento\Framework\Filesystem $filesystem,
         \Magento\Catalog\Model\Session $citySession,
+        \Magento\Framework\App\ObjectManager $objectManager,
         $connectionName = null
     )
     {
@@ -80,6 +83,7 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         $this->_regionCollectionFactory = $regionCollectionFactory;
         $this->_filesystem = $filesystem;
         $this->_citySession = $citySession;
+        $this->_objectManager = $objectManager;
         parent::__construct($context, $connectionName);
     }
 
@@ -99,20 +103,16 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         $minWeight = $this->_coreConfig->getValue('carriers/jnetrucking/min_weight', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $weight_type = $this->_coreConfig->getValue('carriers/jnetrucking/weight_type', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
-        if ($weight_type == 1) { //0 kilogram , 1 gram
-            $shippingWeight = ceil($request->getPackageWeight() / 1000);
-        } else {
-            $shippingWeight = ceil($request->getPackageWeight());
-        }
+        $shippingWeight = $this->getShipWeight($weight_type, $request);
 
         if ($shippingWeight >= $minWeight) {
             $connection = $this->getConnection();
             $condition = $this->_coreConfig->getValue('carriers/jnetrucking/ratecondition', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
             $postcode = $request->getDestPostcode();
             $city = $request->getDestCity();
 
+            $isError = true;
             if (strlen($postcode) > 6) {
                 $data = explode('/', $postcode);
                 $ndata = count($data);
@@ -123,7 +123,9 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
                     $postcode = $data[0];
                     $city = $data[1] . '/' . $data[2] . '/' . $data[3];
                 }
-            } else {
+                $isError = false;
+            }
+            if($isError) {
                 $postcode = $request->getDestPostcode();
                 $city = $request->getDestCity();
                 if (!$city) {
@@ -225,10 +227,11 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
                         $totalPrice = 0;
                         $totalWeight = 0;
 
+                        $isNotDimensional = true;
                         if ($dimensional_condition == 1) {
                             foreach ($items as $item) {
-                                $product = $objectManager->create('Magento\Catalog\Model\Product')
-                                                         ->load($item->getProductId());
+                                $product = $this->_objectManager->create('Magento\Catalog\Model\Product')
+                                    ->load($item->getProductId());
 
                                 //product dimension in cm
                                 $height = $product->getData('dimension_package_height');
@@ -256,7 +259,9 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
                                 $totalPrice += $price;
 
                             }
-                        } else {
+                            $isNotDimensional = false;
+                        }
+                        if($isNotDimensional) {
                             if ($shippingWeight < $value['weight_min']) {
                                 $shippingWeight = $value['weight_min'];
                             }
@@ -271,16 +276,21 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
                         );
                     }
                 }
-            } else {
-                $rates = null;
             }
-        } else {
-            $rates = null;
         }
 
+        if($rates == null || empty($rates)) {
+            return null;
+        }
         return $rates;
     }
 
+    protected function getShipWeight($weight_type, $request) {
+        if ($weight_type == 1) { //0 kilogram , 1 gram
+            return ceil($request->getPackageWeight() / 1000);
+        }
+        return ceil($request->getPackageWeight());
+    }
 
     protected function round_up($value, $places)
     {
@@ -458,44 +468,61 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         }
 
         // validate country
+        $isInvalidCountry = true;
         if (isset($this->_importIso2Countries[$row[0]])) {
             $countryId = $this->_importIso2Countries[$row[0]];
+            $isInvalidCountry = false;
         } elseif (isset($this->_importIso3Countries[$row[0]])) {
             $countryId = $this->_importIso3Countries[$row[0]];
+            $isInvalidCountry = false;
         } elseif ($row[0] == '*' || $row[0] == '') {
             $countryId = '0';
-        } else {
+            $isInvalidCountry = false;
+        }
+        if($isInvalidCountry) {
             $this->_importErrors[] = __('Please correct Country "%1" in the Row #%2.', $row[0], $rowNumber);
             return false;
         }
         // validate region
+        $isInvalidRegion = true;
         if ($countryId != '0' && isset($this->_importRegions[$countryId][$row[1]])) {
             $regionId = $this->_importRegions[$countryId][$row[1]];
+            $isInvalidRegion = false;
         } elseif ($row[1] == '*' || $row[1] == '') {
             $regionId = 0;
-        } else {
+            $isInvalidRegion = false;
+        }
+        if($isInvalidRegion) {
             $this->_importErrors[] = __('Please correct Region/State "%1" in the Row #%2.', $row[1], $rowNumber);
             return false;
         }
         // detect city
+        $isInvalidCity = true;
         if ($row[2] == '*' || $row[2] == '') {
             $city = '*';
-        } else {
+            $isInvalidCity = false;
+        }
+        if($isInvalidCity) {
             $city = $row[2];
         }
 
         // detect zip code
+        $isInvalidZipCode = true;
         if ($row[3] == '*' || $row[3] == '') {
             $zipCode = '*';
-        } else {
+            $isInvalidZipCode = false;
+        }
+        if($isInvalidZipCode) {
             $zipCode = $row[3];
         }
 
         // detect weight From
-
+        $isInvalidWeightFrom = true;
         if ($row[4] == '*' || $row[4] == '') {
             $weight_from = '0.0000';
-        } else {
+            $isInvalidWeightFrom = false;
+        }
+        if($isInvalidWeightFrom) {
             $weight_from = $this->_parseDecimalValue($row[4]);
             if ($weight_from === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -506,9 +533,12 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         }
 
         // detect weight to
+        $isInvalidWeightTo = true;
         if ($row[5] == '*' || $row[5] == '') {
             $weight_to = '0.0000';
-        } else {
+            $isInvalidWeightTo = false;
+        }
+        if($isInvalidWeightTo) {
             $weight_to = $this->_parseDecimalValue($row[5]);
             if ($weight_to === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -519,9 +549,12 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         }
 
         // detect price from
+        $isInvalidPriceFrom = true;
         if ($row[6] == '*' || $row[6] == '') {
             $price_from = '0.0000';
-        } else {
+            $isInvalidPriceFrom = false;
+        }
+        if($isInvalidPriceFrom) {
             $price_from = $this->_parseDecimalValue($row[6]);
             if ($price_from === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -532,9 +565,12 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         }
 
         // detect price to
+        $isInvalidPriceTo = true;
         if ($row[7] == '*' || $row[7] == '') {
             $price_to = '0.0000';
-        } else {
+            $isInvalidPriceTo = false;
+        }
+        if($isInvalidPriceTo) {
             $price_to = $this->_parseDecimalValue($row[7]);
             if ($price_to === false) {
                 $this->_importErrors[] = __('Please correct %1 "%2" in the Row #%3.',
@@ -545,16 +581,22 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         }
 
         // detect Qty from
+        $isInvalidQtyFrom = true;
         if ($row[8] == '*' || $row[8] == '') {
             $qty_from = '0';
-        } else {
+            $isInvalidQtyFrom = false;
+        }
+        if($isInvalidQtyFrom) {
             $qty_from = $row[8];
         }
 
         // detect Qty to
+        $isInvalidQtyTo = true;
         if ($row[9] == '*' || $row[9] == '') {
             $qty_to = '0';
-        } else {
+            $isInvalidQtyTo = false;
+        }
+        if($isInvalidQtyTo) {
             $qty_to = $row[9];
         }
 
@@ -582,9 +624,12 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
         $etd = $row[12];
 
         // detect min weight
+        $isInvalidMinWeight = true;
         if ($row[13] == '*' || $row[13] == '') {
             $weight_min = '0';
-        } else {
+            $isInvalidMinWeight = false;
+        }
+        if($isInvalidMinWeight) {
             $weight_min = $row[13];
         }
 

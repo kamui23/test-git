@@ -4,15 +4,36 @@ namespace Icube\Order\Model\Rewrite\Carrier;
 
 class Advancerate extends \Ced\Advancerate\Model\ResourceModel\Carrier\Advancerate
 {
+    protected $_objectManager;
+
+    public function __construct(
+        \Magento\Framework\Model\ResourceModel\Db\Context $context,
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\App\Config\ScopeConfigInterface $coreConfig,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Ced\Advancerate\Model\Carrier\Advancerate $carrierTablerate,
+        \Magento\Directory\Model\ResourceModel\Country\CollectionFactory $countryCollectionFactory,
+        \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionCollectionFactory,
+        Filesystem $filesystem,
+        \Magento\Catalog\Model\Session $citySession,
+        \Magento\Framework\App\ObjectManager $objectManager,
+        $connectionName = null
+    ) {
+        parent::__construct($context, $logger, $coreConfig, $storeManager, $carrierTablerate, $countryCollectionFactory, $regionCollectionFactory, $filesystem, $citySession, $connectionName);
+        $this->_objectManager = $objectManager;
+    }
+
+
     public function getRates(\Magento\Quote\Model\Quote\Address\RateRequest $request)
     {
         $connection = $this->getConnection();
         $condition = $this->_coreConfig->getValue('carriers/advancerate/ratecondition', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+//        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
         $postcode = $request->getDestPostcode();
         $city = $request->getDestCity();
 
+        $isError = true;
         if (strlen($postcode) > 6) {
             $data = explode('/', $postcode);
             $ndata = count($data);
@@ -23,7 +44,9 @@ class Advancerate extends \Ced\Advancerate\Model\ResourceModel\Carrier\Advancera
                 $postcode = $data[0];
                 $city = $data[1] . '/' . $data[2] . '/' . $data[3];
             }
-        } else {
+            $isError = false;
+        }
+        if($isError) {
             $postcode = $request->getDestPostcode();
             $city = $request->getDestCity();
             if (!$city) {
@@ -115,13 +138,7 @@ class Advancerate extends \Ced\Advancerate\Model\ResourceModel\Carrier\Advancera
         $methods = array();
         $rates = array();
         $weight_type = $this->_coreConfig->getValue('carriers/advancerate/weight_type', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
-        if ($weight_type == 1) { //0 kilogram , 1 gram
-            $shippingWeight = ceil($request->getPackageWeight() / 1000);
-        } else {
-            $shippingWeight = ceil($request->getPackageWeight());
-        }
-
+        $shippingWeight = $this->getShippingWeight($weight_type, $request);
 
         $dimensional_condition = $this->_coreConfig->getValue('carriers/advancerate/dimensional_calculation', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
@@ -133,9 +150,10 @@ class Advancerate extends \Ced\Advancerate\Model\ResourceModel\Carrier\Advancera
                     $rate = $value['price'];
                     $totalPrice = 0;
                     $totalWeight = 0;
+                    $isError = true;
                     if ($dimensional_condition == 1) {
                         foreach ($items as $item) {
-                            $product = $objectManager->create('Magento\Catalog\Model\Product')
+                            $product = $this->_objectManager->create('Magento\Catalog\Model\Product')
                                                      ->load($item->getProductId());
                             //product dimension in cm
                             $height = $product->getData('dimension_package_height');
@@ -163,7 +181,9 @@ class Advancerate extends \Ced\Advancerate\Model\ResourceModel\Carrier\Advancera
                             $totalPrice += $price;
 
                         }
-                    } else {
+                        $isError = false;
+                    }
+                    if($isError) {
                         $totalPrice = $rate * $shippingWeight;
                         $totalWeight = $request->getPackageWeight();
                         $totalPickupWeight = 0;
@@ -185,10 +205,17 @@ class Advancerate extends \Ced\Advancerate\Model\ResourceModel\Carrier\Advancera
                     );
                 }
             }
-        } else {
-            $rates = null;
         }
         return $rates;
+    }
+
+    protected function getShippingWeight($weight_type, $request) {
+        if ($weight_type == 1) { //0 kilogram , 1 gram
+            $shippingWeight = ceil($request->getPackageWeight() / 1000);
+            return $shippingWeight;
+        }
+        $shippingWeight = ceil($request->getPackageWeight());
+        return $shippingWeight;
     }
 
 }

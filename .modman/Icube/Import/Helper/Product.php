@@ -51,11 +51,7 @@ class Product extends AbstractHelper
         foreach ($this->site as $siteLocation) {
             foreach ($arrlocationpath as $location_path) {
                 $location_path = $location_path . $siteLocation . '/';
-                if ($siteLocation == 'id') {
-                    $idPrice = 34;
-                } else {
-                    $idPrice = 42;
-                }
+                $idPrice = $this->getPriceBySiteLocale($siteLocation, 34, 42);
                 foreach (glob($location_path . '*.csv') as $filepath) {
 
                     $filename = str_replace($location_path, "", $filepath);
@@ -124,11 +120,7 @@ class Product extends AbstractHelper
         foreach ($this->site as $siteLocation) {
             $location_path = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath('urapidflow/import/specialpriceccp/');
             $location_path = $location_path . $siteLocation . '/';
-            if ($siteLocation == 'id') {
-                $idPrice = 35;
-            } else {
-                $idPrice = 43;
-            }
+            $idPrice = $this->getPriceBySiteLocale($siteLocation, 35, 43);
             foreach (glob($location_path . '*.csv') as $filepath) {
                 $filename = str_replace($location_path, "", $filepath);
                 $profile->load($idPrice, 'profile_id');
@@ -182,5 +174,12 @@ class Product extends AbstractHelper
                 }
             }
         }
+    }
+
+    protected function getPriceBySiteLocale($siteLocation, $price1, $price2) {
+        if($siteLocation == 'id') {
+            return $price1;
+        }
+        return $price2;
     }
 }

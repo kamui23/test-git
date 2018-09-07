@@ -10,15 +10,24 @@ class Autocomplete
     protected $_customer;
     protected $_helper;
     protected $_productRepository;
+    protected $_objectManager;
 
-    public function __construct(\Wyomind\PointOfSale\Model\PointOfSale $modelPos, \Wyomind\AdvancedInventory\Model\Stock $stock, \Magento\Store\Model\StoreManagerInterface $storeManager, \Magento\Customer\Model\Customer $customer, \Kemana\AdvancedInventory\Helper\Data $helper, \Magento\Catalog\Api\ProductRepositoryInterface $productRepository)
-    {
+    public function __construct(
+        \Wyomind\PointOfSale\Model\PointOfSale $modelPos,
+        \Wyomind\AdvancedInventory\Model\Stock $stock,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Customer\Model\Customer $customer,
+        \Kemana\AdvancedInventory\Helper\Data $helper,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        \Magento\Framework\App\ObjectManager $objectManager
+    ){
         $this->_storeManager = $storeManager;
         $this->_momaPos = $modelPos;
         $this->_stock = $stock;
         $this->_customer = $customer;
         $this->_helper = $helper;
         $this->_productRepository = $productRepository;
+        $this->_objectManager = $objectManager;
     }
 
     public function afterGetItems(\Magento\Search\Model\Autocomplete $subject, $result)
@@ -26,12 +35,7 @@ class Autocomplete
         $storeId = $this->_storeManager->getStore()->getId();
         $storeCode = $this->_storeManager->getStore()->getCode();
         $session = 'customer_' . $storeCode . '_website';
-        if ($this->_helper->isLoggedIn()) {
-            $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
-            $groupId = $customer->getGroupId();
-        } else {
-            $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
-        }
+        $groupId = $this->getGroupsId($this->_helper->isLoggedIn(), $session);
 
         foreach ($result as $key => $item) {
             $arrayData = $item->toArray();
@@ -47,8 +51,7 @@ class Autocomplete
                 $brandId = $product->getBrand();
                 // echo $brandId.'---'.$productId;die;
                 //Check brand enable
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+                $resource = $this->_objectManager->get('Magento\Framework\App\ResourceConnection');
                 $connection = $resource->getConnection();
                 $sqlQuery = "SELECT a.id FROM icube_brands_items a
 							JOIN kemana_brands_customer b ON a.id = b.ib_id
@@ -83,6 +86,16 @@ class Autocomplete
             }
         }
         return $result;
+    }
+
+    protected function getGroupsId($isLoggedIn, $session) {
+        if ($isLoggedIn) {
+            $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
+            $groupId = $customer->getGroupId();
+            return $groupId;
+        }
+        $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
+        return $groupId;
     }
 
     public function getPlacesbyStoreandCustomerGroup($storeId, $customerGroupId)

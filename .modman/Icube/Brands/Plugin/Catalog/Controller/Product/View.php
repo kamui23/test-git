@@ -42,10 +42,9 @@ class View
     {
         $productId = $subject->getRequest()->getParam('id');
         $productIds = $this->ruleProvider->getRestrictedProductIds();
-        if (in_array($productId, $productIds)) {
-            $this->noProductRedirect($subject);
-        } else {
+        if (!in_array($productId, $productIds)) {
             return $proceed();
         }
+        $this->noProductRedirect($subject);
     }
 }

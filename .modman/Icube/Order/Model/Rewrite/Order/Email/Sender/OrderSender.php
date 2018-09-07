@@ -1,8 +1,33 @@
 <?php
 namespace Icube\Order\Model\Rewrite\Order\Email\Sender;
 
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Payment\Helper\Data as PaymentHelper;
+use Magento\Sales\Model\Order\Address\Renderer;
+use Magento\Sales\Model\Order\Email\Container\OrderIdentity;
+use Magento\Sales\Model\Order\Email\Container\Template;
+use Magento\Sales\Model\ResourceModel\Order as OrderResource;
+
 class OrderSender extends \Magento\Sales\Model\Order\Email\Sender\OrderSender
 {
+    protected $_objectManager;
+
+    public function __construct(
+        Template $templateContainer,
+        OrderIdentity $identityContainer,
+        Order\Email\SenderBuilderFactory $senderBuilderFactory,
+        \Psr\Log\LoggerInterface $logger,
+        Renderer $addressRenderer,
+        PaymentHelper $paymentHelper,
+        OrderResource $orderResource,
+        \Magento\Framework\App\Config\ScopeConfigInterface $globalConfig,
+        ManagerInterface $eventManager,
+        \Magento\Framework\App\ObjectManager $objectManager
+    ) {
+        parent::__construct($templateContainer, $identityContainer, $senderBuilderFactory, $logger, $addressRenderer, $paymentHelper, $orderResource, $globalConfig, $eventManager);
+        $this->_objectManager = $objectManager;
+    }
+
     /**
      * Prepare email template with variables
      *
@@ -15,10 +40,9 @@ class OrderSender extends \Magento\Sales\Model\Order\Email\Sender\OrderSender
         $pickupInfo = NULL;
         if ($order->getDeliveryPickup() == 'mixed') {
             $storecode = NULL;
-            $om = \Magento\Framework\App\ObjectManager::getInstance();
             $storecode = $order->getStoreCode();
             if($storecode != NULL){
-                $pos = $om->create('Wyomind\PointOfSale\Model\PointOfSale')->load($storecode,'store_code');
+                $pos = $this->_objectManager->create('Wyomind\PointOfSale\Model\PointOfSale')->load($storecode,'store_code');
                 $pickupInfo = $pos->getName();
             }
         }

@@ -21,22 +21,27 @@ class Advanced
         $array = $this->_helper->getArrayProductId($result);
         if ($this->_helper->isEnable()) {
             $arrayBrand = $this->_ruleProvider->getProductIdsActive();
-            if ($arrayBrand) {
-                $farray = array_flip($array);
-                $arrFinish = [];
-                foreach ($arrayBrand as $v) {
-                    if (isset($farray[$v])) {
-                        $arrFinish[] = $v;
-                    }
-                }
-            } else {
-                $arrFinish = $array;
-            }
+            $arrFinish = $this->getArrayFinish($arrayBrand, $array);
             $result->addFieldToFilter('entity_id', ['in' => $arrFinish]);
-        } else {
-            $result->addFieldToFilter('entity_id', ['in' => $array]);
+            return $result;
         }
+        $result->addFieldToFilter('entity_id', ['in' => $array]);
         return $result;
 
+    }
+
+    protected function getArrayFinish($arrayBrand, $array) {
+        if ($arrayBrand) {
+            $farray = array_flip($array);
+            $arrFinish = [];
+            foreach ($arrayBrand as $v) {
+                if (isset($farray[$v])) {
+                    $arrFinish[] = $v;
+                }
+            }
+            return $arrFinish;
+        }
+        $arrFinish = $array;
+        return $arrFinish;
     }
 }

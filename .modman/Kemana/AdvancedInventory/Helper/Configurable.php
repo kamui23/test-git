@@ -4,10 +4,20 @@ namespace Kemana\AdvancedInventory\Helper;
 
 class Configurable extends \Magento\ConfigurableProduct\Helper\Data
 {
+    protected $_objectManager;
+
+    public function __construct(
+        \Magento\Catalog\Helper\Image $imageHelper,
+        \Magento\Framework\App\ObjectManager $objectManager
+    ) {
+        parent::__construct($imageHelper);
+        $this->_objectManager = $objectManager;
+    }
+
+
     public function getStock($productId, $storeCode, $groupId)
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $pointOfSaleCollection = $objectManager->create('Wyomind\PointOfSale\Model\ResourceModel\PointOfSale\Collection');
+        $pointOfSaleCollection = $this->_objectManager->create('Wyomind\PointOfSale\Model\ResourceModel\PointOfSale\Collection');
         $pointOfSaleCollection->getSelect()->joinLeft(["lsp" => 'advancedinventory_item'], "lsp.product_id = " . $productId)
                               ->joinLeft(
                                   [
@@ -28,20 +38,21 @@ class Configurable extends \Magento\ConfigurableProduct\Helper\Data
 
     public function getOptions($currentProduct, $allowedProducts)
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $storeManager = $objectManager->get('Magento\Store\Model\StoreManagerInterface');
+        $storeManager = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface');
         $options = [];
         $storeId = $storeManager->getStore()->getId();
         $storeCode = $storeManager->getStore()->getCode();
-        $customerModel = $objectManager->get('Magento\Customer\Model\Customer');
+        $customerModel = $this->_objectManager->get('Magento\Customer\Model\Customer');
 
         $session = 'customer_' . $storeCode . '_website';
 
+        $loggedOut = true;
         if ($this->isLoggedIn()) {
             $customer = $customerModel->load($_SESSION[$session]['customer_id']);
             $groupId = $customer->getGroupId();
-        } else {
+            $loggedOut = false;
+        }
+        if($loggedOut) {
             $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
         }
 
@@ -81,8 +92,7 @@ class Configurable extends \Magento\ConfigurableProduct\Helper\Data
 
     public function isLoggedIn()
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $context = $objectManager->get('Magento\Framework\App\Http\Context');
+        $context = $this->_objectManager->get('Magento\Framework\App\Http\Context');
         return $context->getValue(\Magento\Customer\Model\Context::CONTEXT_AUTH);
     }
 }

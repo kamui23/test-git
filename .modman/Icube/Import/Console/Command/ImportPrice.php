@@ -18,6 +18,17 @@ class ImportPrice extends Command
 
     protected $importproduct;
 
+    protected $_objectManager;
+
+    public function __construct(
+        $name = null,
+        \Magento\Framework\App\ObjectManager $objectManager
+    ) {
+        parent::__construct($name);
+        $this->_objectManager = $objectManager;
+    }
+
+
     protected function configure()
     {
         $this->setName('icube:price:import')
@@ -32,16 +43,16 @@ class ImportPrice extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
+//        $om = \Magento\Framework\App\ObjectManager::getInstance();
         //$om->get('\Magento\Framework\App\State')->setAreaCode('adminhtml');
 
         $output->writeln('<info>Starting reading data from csv files</info>');
         /**
          * @var \Magento\Framework\Registry
          */
-        $registry = $om->get('\Magento\Framework\Registry');
+        $registry = $this->_objectManager->get('\Magento\Framework\Registry');
         $registry->register('isSecureArea', true);
-        $om->get('\Icube\Import\Helper\Product')->importPrice();
+        $this->_objectManager->get('\Icube\Import\Helper\Product')->importPrice();
         $output->writeln(' ');
         $output->writeln('<info>finish</info>');
 

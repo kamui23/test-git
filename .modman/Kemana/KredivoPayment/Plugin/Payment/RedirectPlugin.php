@@ -192,11 +192,9 @@ class RedirectPlugin
             $product = $each->getProduct();
             $categories = $product->getCategoryIds();
 
-            $_objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
             // Loop and get first category name from each product item.
             foreach ($categories as $category_id) {
-                $category = $_objectManager->create('Magento\Catalog\Model\Category')->load($category_id);
+                $category = $this->_objectManager->create('Magento\Catalog\Model\Category')->load($category_id);
                 $category_name = $category->getName();
                 break;
             }
@@ -301,12 +299,15 @@ class RedirectPlugin
         $customerSession = $this->_objectManager->get('Magento\Customer\Model\Session');
         $orderBillingAddress = $order->getBillingAddress();
 
+        $loggedOut = true;
         if ($customerSession->isLoggedIn()) {
             $first_name = $customerSession->getCustomer()->getId();  // get Customer Id
             $last_name = $customerSession->getCustomer()->getName();  // get  Full Name
             $cust_email = $customerSession->getCustomer()->getEmail(); // get Email Name
             // get Customer Group Id
-        } else {
+            $loggedOut = false;
+        }
+        if($loggedOut) {
             $cust_email = $orderBillingAddress->getEmail();
             $first_name = $orderBillingAddress->getFirstname();
             $last_name = $orderBillingAddress->getLastname();

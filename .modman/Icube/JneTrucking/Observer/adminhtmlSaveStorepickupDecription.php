@@ -99,13 +99,8 @@ class AdminhtmlSaveStorepickupDecription implements ObserverInterface
                     $collectionstore = $this->_storeCollection->create();
                     $store = $collectionstore->load($storeId, 'storepickup_id');
                     //set Shipping Description
-                    if (isset($storepickup_session['shipping_date']) && isset($storepickup_session['shipping_time'])) {
-                        $new .= '<br>' . __('Pickup date') . ' : ' . $storepickup_session['shipping_date'] . '<br>' . __('Pickup time') . ' : ' . $storepickup_session['shipping_time'] . '';
-                    } else {
-                        $new .= '';
-                        // give error on email transaction, so does <img /> above (deleted replace with '')
-                        //$new .= '<br><img src="http://maps.google.com/maps/api/staticmap?center='.$store->getData('latitude'). ',' . $store->getData('longitude') . '&zoom=15&size=200x200&markers=color:red|label:S|' . $store->getData('latitude') . ',' . $store->getData('longitude') . '&sensor=false" />';
-                    }
+                    $newTxt = $this->checkStorePickUpSession($storepickup_session);
+                    $new .= $newTxt;
                     $order->setShippingDescription($new);
                     //set Shipping Address
                     $datashipping['firstname'] = __('Store');
@@ -116,17 +111,11 @@ class AdminhtmlSaveStorepickupDecription implements ObserverInterface
                     $datashipping['postcode'] = $store->getData('zipcode');
                     $datashipping['country_id'] = $store->getData('country_id');
                     $datashipping['company'] = '';
-                    if ($store->getFax()) {
-                        $datashipping['fax'] = $store->getFax();
-                    } else {
-                        unset($datashipping['fax']);
-                    }
 
-                    if ($store->getPhone()) {
-                        $datashipping['telephone'] = $store->getPhone();
-                    } else {
-                        unset($datashipping['telephone']);
-                    }
+                    $condFax = $store->getFax();
+                    $condPhone = $store->getPhone();
+                    $this->checkStoreVariables($condFax, $datashipping['fax']);
+                    $this->checkStoreVariables($condPhone, $datashipping['telephone']);
 
                     $datashipping['save_in_address_book'] = 1;
 
@@ -140,5 +129,22 @@ class AdminhtmlSaveStorepickupDecription implements ObserverInterface
         } catch (\Exception $e) {
 
         }
+    }
+
+    protected function checkStorePickUpSession($storepickup_session) {
+        if (isset($storepickup_session['shipping_date']) && isset($storepickup_session['shipping_time'])) {
+            $new = '<br>' . __('Pickup date') . ' : ' . $storepickup_session['shipping_date'] . '<br>' . __('Pickup time') . ' : ' . $storepickup_session['shipping_time'] . '';
+            return $new;
+        }
+        return '';
+    }
+
+    protected function checkStoreVariables($cond, $varName) {
+        if ($cond) {
+            $varName = $cond;
+            return;
+        }
+        unset($varName);
+        return;
     }
 }

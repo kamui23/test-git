@@ -111,6 +111,7 @@ class Save extends \Magento\Sales\Controller\Adminhtml\Order\Invoice\Save
             }
             $transactionSave->save();
 
+            $isCreatedInvoice = true;
             if (isset($shippingResponse) && $shippingResponse->hasErrors()) {
                 $this->messageManager->addError(
                     __(
@@ -118,9 +119,12 @@ class Save extends \Magento\Sales\Controller\Adminhtml\Order\Invoice\Save
                         'The shipping label cannot be created now.'
                     )
                 );
+                $isCreatedInvoice = false;
             } elseif (!empty($data['do_shipment'])) {
                 $this->messageManager->addSuccess(__('You created the invoice and shipment.'));
-            } else {
+                $isCreatedInvoice = false;
+            }
+            if($isCreatedInvoice) {
                 $this->messageManager->addSuccess(__('The invoice has been created.'));
             }
 
