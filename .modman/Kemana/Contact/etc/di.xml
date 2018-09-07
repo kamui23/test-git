@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Contact\Block\ContactForm">
+        <plugin name="kemana_magento_contact_block_contactform" type="Kemana\Contact\Plugin\Magento\Contact\Block\ContactForm" sortOrder="1" />
+    </type>
+</config>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Wyomind. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+    <type name="Smile\ElasticsuiteCatalog\Model\Autocomplete\Category\ItemFactory">
+        <plugin name="Kemana_FixSearchCategoryByMenu_show_category" type="Kemana\FixSearchCategoryByMenu\Plugin\Catalog\Model\ItemFactory" sortOrder="10"/>
+    </type>
+    <type name="Magento\Search\Model\Autocomplete">
+        <plugin name="Kemana_FixSearchCategoryByMenu_advanced_search_show_category_menu" type="Kemana\FixSearchCategoryByMenu\Plugin\Catalog\Model\Autocomplete" sortOrder="10"/>
+    </type>
+    <type name="Smile\ElasticsuiteCatalog\Model\ResourceModel\Product\Fulltext\Collection">
+        <plugin name="Kemana_FixSearchCategoryByMenu_layer_show_category_menu" type="Kemana\FixSearchCategoryByMenu\Plugin\Product\Fulltext\Collection" sortOrder="10"/>
+    </type>
+    
+</config>

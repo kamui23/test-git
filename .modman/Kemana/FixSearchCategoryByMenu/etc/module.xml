@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2017 PT Kemana Teknologi Solusi. All rights reserved.
+ * http://www.kemana.com
+ */
+
+/**
+ * @category Kemana
+ * @package  Kemana_Catalog
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)  
+ *
+ * 
+ * @author   Imam Kusuma <ikusuma@kemana.com>
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Kemana_FixSearchCategoryByMenu" setup_version="1.0.0" />
+</config>

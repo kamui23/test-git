@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2017 Icube. All rights reserved.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+	<!-- <head>
+        listnav Library CSS
+        <css src="Icube_Brands::js/lib/css/listnav.css"/>
+    </head> -->
+
+    <body>
+        <!-- <referenceContainer name="after.body.start">
+            Icube brands Custom Javascript/jQuery codes 
+            <block class="Magento\Theme\Block\Html\Topmenu" name="brand.js" template="Icube_Brands::page/js/jquery.brand.phtml" />
+        </referenceContainer> -->
+        
+        <attribute name="class" value="icube_brands_index"/>
+        <referenceContainer name="content">
+            <block class="Icube\Brands\Block\Index" name="brand.list.content"  template="Icube_Brands::icube_brands/list.phtml" cacheable="false">
+             </block>
+        </referenceContainer>
+        <referenceBlock name="sidebar.additional" remove="true" />
+    </body>
+</page>

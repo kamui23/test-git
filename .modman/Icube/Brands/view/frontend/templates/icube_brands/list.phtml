@@ -1,0 +1,79 @@
+<?php 
+$brands = $this->getBrands();
+$featured = $this->getFeaturedBrands();
+$media = $this->getImageMediaPath();
+$helper = $this->helper('Icube\Brands\Helper\Data');
+$config = $helper->getConfig();
+?>
+<style>
+	.brand-char {
+    min-width: 300px;
+    float: left;
+    min-height: 115px;
+    width: 100%;
+}
+</style>
+<h1>Brands</h1>
+
+<h3>Featured Brands</h3>
+<div class="featured-brands">
+	<?php foreach($featured as $_fbrand):?>
+		<span class="brand_view">
+			<?php if($_fbrand->getCategoryUrl()):?>
+				<a href="<?php echo $this->getUrl().$_fbrand->getCategoryUrl()?>">
+			<?php else:?>
+				<a href="<?php echo $this->getUrl('catalogsearch/advanced/result/').'?'.$config.'[]='.$_fbrand->getAttributeId();?>">
+			<?php endif;?>
+			<?php if($_fbrand->getLogo()):?>
+				<img class="f-barnd-img" src="<?php echo $media.$_fbrand->getLogo() ?>" title="<?php echo $_fbrand->getName();?>" alt="<?php echo $_fbrand->getName();?>" style="height:100px"/>
+			<?php else:?>
+				<span class="brand-title">
+					<?php echo $_fbrand->getName();?>
+				</span>
+			<?php endif;?>
+			</a>
+		</span>
+	<?php endforeach;?>
+</div>
+<br />
+<h3>ALL Brands</h3>
+<?php foreach (range('0', '9') as $char) :?>
+	<?php if(isset($brands[$char])):?>
+		<div class="brand-char">
+			<strong><?php echo $char;?></strong>
+			<ul>
+				<?php foreach($brands[$char] as $_brand):?>
+					<li>
+						<?php if($_brand->getCategoryUrl()):?>
+							<a href="<?php echo $this->getUrl().$_brand->getCategoryUrl()?>"><?php echo $_brand->getName();?></a>
+						<?php else:?>
+							<a href="<?php echo $this->getUrl('catalogsearch/advanced/result/').'?'.$config.'[]='.$_brand->getAttributeId();?>">
+								<?php echo $_brand->getName();?>
+							</a>
+						<?php endif;?>
+					</li>
+				<?php endforeach;?>
+			</ul>
+		</div>
+	<?php endif;?>
+<?php endforeach;?>
+<?php foreach (range('A', 'Z') as $char) :?>
+	<?php if(isset($brands[$char])):?>
+		<div class="brand-char">
+			<strong><?php echo $char;?></strong>
+			<ul>
+				<?php foreach($brands[$char] as $_brand):?>
+					<li>
+						<?php if($_brand->getCategoryUrl()):?>
+							<a href="<?php echo $this->getUrl().$_brand->getCategoryUrl()?>"><?php echo $_brand->getName();?></a>
+						<?php else:?>
+							<a href="<?php echo $this->getUrl('catalogsearch/advanced/result/').'?'.$config.'[]='.$_brand->getAttributeId();?>">
+								<?php echo $_brand->getName();?>
+							</a>
+						<?php endif;?>
+					</li>
+				<?php endforeach;?>
+			</ul>
+		</div>
+	<?php endif;?>
+<?php endforeach;?>

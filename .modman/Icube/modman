@@ -1,0 +1,13 @@
+Brands  app/code/Icube/Brands
+CancelOrder  app/code/Icube/CancelOrder
+CartCrosssell  app/code/Icube/CartCrosssell
+CustomWholesale  app/code/Icube/CustomWholesale
+DecimalUpdate  app/code/Icube/DecimalUpdate
+Import  app/code/Icube/Import
+InvoiceEmail  app/code/Icube/InvoiceEmail
+JneTrucking  app/code/Icube/JneTrucking
+LimitCompare  app/code/Icube/LimitCompare
+Order  app/code/Icube/Order
+Pickup  app/code/Icube/Pickup
+UpgradeScript  app/code/Icube/UpgradeScript
+Vtweb  app/code/Icube/Vtweb
