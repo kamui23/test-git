@@ -78,8 +78,7 @@ class SaveStorepickupDecription implements ObserverInterface
                     $collectionstore = $this->_storeCollection->create();
                     $store = $collectionstore->load($storeId, 'storepickup_id');
                     //set shipping desciption
-                    if (isset($storepickup_session['shipping_date']) && isset($storepickup_session['shipping_time'])) {
-                    } else {
+                    if (!isset($storepickup_session['shipping_date']) || !isset($storepickup_session['shipping_time'])) {
                         $new .= '';
                     }
                     $order->setShippingDescription($new);
@@ -92,16 +91,12 @@ class SaveStorepickupDecription implements ObserverInterface
                     $datashipping['postcode'] = $store->getData('zipcode');
                     $datashipping['country_id'] = $store->getData('country_id');
                     $datashipping['company'] = '';
-                    if ($store->getFax()) {
-                        $datashipping['fax'] = $store->getFax();
-                    } else {
-                        unset($datashipping['fax']);
-                    }
-                    if ($store->getPhone()) {
-                        $datashipping['telephone'] = $store->getPhone();
-                    } else {
-                        unset($datashipping['telephone']);
-                    }
+
+                    $condFax = $store->getFax();
+                    $condPhone = $store->getPhone();
+                    $this->checkStoreVariables($condFax, $datashipping['fax']);
+                    $this->checkStoreVariables($condPhone, $datashipping['telephone']);
+
                     $datashipping['save_in_address_book'] = 1;
 
                     $order->getShippingAddress()->addData($datashipping);
@@ -111,5 +106,14 @@ class SaveStorepickupDecription implements ObserverInterface
         } catch (\Exception $e) {
 
         }
+    }
+
+    protected function checkStoreVariables($cond, $varName) {
+        if ($cond) {
+            $varName = $cond;
+            return;
+        }
+        unset($varName);
+        return;
     }
 }

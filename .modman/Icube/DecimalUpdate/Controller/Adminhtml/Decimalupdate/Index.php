@@ -15,6 +15,8 @@ class Index extends \Magento\Backend\App\Action
      * @var \Psr\Log\LoggerInterface
      */
     protected $_logger;
+    protected $_resourceConnection;
+    protected $_scopeConfig;
 
     /**
      * @param \Magento\Backend\App\Action\Context $context
@@ -24,10 +26,14 @@ class Index extends \Magento\Backend\App\Action
 
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
-        \Psr\Log\LoggerInterface $logger
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\App\ResourceConnection $resourceConnection,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     )
     {
         $this->_logger = $logger;
+        $this->_resourceConnection = $resourceConnection;
+        $this->_scopeConfig = $scopeConfig;
         parent::__construct($context);
     }
 
@@ -39,15 +45,11 @@ class Index extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
-        $scopeConfig = $objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface');
-        $connection = $resource->getConnection();
+        $connection = $this->_resourceConnection->getConnection();
 
         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
 
-        $tablename = $scopeConfig->getValue(self::XML_PATH_DATA, $storeScope);
+        $tablename = $this->_scopeConfig->getValue(self::XML_PATH_DATA, $storeScope);
 
         $sql = "SELECT CONCAT( 'ALTER TABLE ', TABLE_NAME, ' MODIFY COLUMN ', COLUMN_NAME, ' TIMESTAMP DEFAULT CURRENT_TIMESTAMP' ) AS TABLE_NAME FROM information_schema.columns WHERE table_schema = '" . $tablename . "' AND column_default = '0000-00-00 00:00:00'";
         $result = $connection->fetchAll($sql);
@@ -64,14 +66,18 @@ class Index extends \Magento\Backend\App\Action
             $result3 = $connection->query($value1['TABLE_NAME']);
         }
 
-        if ($result && $result1) {
-            $response['status'] = 'success';
-        } else {
-            $response['status'] = 'query already run';
-        }
+        $statusTxt = $this->getStatusTxt($result, $result1);
+        $response['status'] = $statusTxt;
 
         $this->getResponse()->representJson(
             $this->_objectManager->get('Magento\Framework\Json\Helper\Data')->jsonEncode($response)
         );
+    }
+
+    protected function getStatusTxt($result, $result1) {
+        if ($result && $result1) {
+            return 'success';
+        }
+        return 'query already run';
     }
 }

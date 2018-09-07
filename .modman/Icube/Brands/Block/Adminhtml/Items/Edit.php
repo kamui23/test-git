@@ -67,8 +67,7 @@ class Edit extends \Magento\Backend\Block\Widget\Form\Container
         $item = $this->_coreRegistry->registry('current_icube_brands_items');
         if ($item->getId()) {
             return __("Edit Brand '%1'", $this->escapeHtml($item->getName()));
-        } else {
-            return __('New Brand');
         }
+        return __('New Brand');
     }
 }

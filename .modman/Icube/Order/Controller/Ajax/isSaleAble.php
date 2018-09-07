@@ -49,13 +49,7 @@ class isSaleAble extends \Magento\Framework\App\Action\Action
             $product = $this->_productFactory->create()->load($params['product_id']);
             $isSaleAble = $product->isSaleAble();
         }
-
-        if ($isSaleAble != NULL) {
-            $response['isSaleAble'] = $isSaleAble;
-        } else {
-            $response['isSaleAble'] = NULL;
-        }
-
+        $response['isSaleAble'] = $isSaleAble;
 
         $this->getResponse()->representJson(
             $this->_jsonHelper->jsonEncode($response)

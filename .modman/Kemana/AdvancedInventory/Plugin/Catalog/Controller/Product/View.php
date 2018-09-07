@@ -57,23 +57,18 @@ class View
         $placesCollection = $this->_pointOfSale->getPlacesByStoreId($storeId);
         $arrPlaces = $placesCollection->getAllIds();
         $access = false;
+        $isError = true;
         if ($typeId == 'configurable') {
-            if ($this->_helper->isLoggedIn()) {
-                $storeCode = $this->_storeManager->getStore()->getCode();
-                $session = 'customer_' . $storeCode . '_website';
-                $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
-                $groupId = $customer->getGroupId();
-            } else {
-                $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
-            }
+            $groupId = $this->getGroupsId($this->_helper->isLoggedIn());
+
             $arrayConfiguable = json_decode($this->_helper->getConfigurableProductInStock($storeId, $groupId));
             if (in_array($productId, $arrayConfiguable)) {
                 return $proceed();
-            } else {
-                $this->noProductRedirect($subject);
             }
-
-        } else {
+            $this->noProductRedirect($subject);
+            $isError = false;
+        }
+        if($isError) {
             foreach ($arrPlaces as $value) {
                 $stockData = $this->_stock->getStockByProductIdAndPlaceId($productId, $value);
                 if ($stockData['quantity_in_stock']) {
@@ -81,12 +76,22 @@ class View
                     break;
                 }
             }
-            if (!$access) {
-                $this->noProductRedirect($subject);
-            } else {
+            if ($access) {
                 return $proceed();
             }
-
+            $this->noProductRedirect($subject);
         }
+    }
+
+    protected function getGroupsId($isLoggedIn) {
+        if ($isLoggedIn) {
+            $storeCode = $this->_storeManager->getStore()->getCode();
+            $session = 'customer_' . $storeCode . '_website';
+            $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
+            $groupId = $customer->getGroupId();
+            return $groupId;
+        }
+        $groupId = \Magento\Customer\Model\Group::NOT_LOGGED_IN_ID;
+        return $groupId;
     }
 }

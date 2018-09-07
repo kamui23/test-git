@@ -62,12 +62,8 @@ class Exportrates extends \Magento\Config\Controller\Adminhtml\System\AbstractCo
         );
 
         $website = $this->_storeManager->getWebsite($this->getRequest()->getParam('website'));
-        if ($this->getRequest()->getParam('conditionName')) {
-            $conditionName = $this->getRequest()->getParam('conditionName');
-        } else {
-            $conditionName = $this->getVendorId();
-        }
-
+        $paramConditionName = $this->getRequest()->getParam('conditionName');
+        $conditionName = $this->getConditionName($paramConditionName);
         $gridBlock->setWebsiteId($website->getId())->setConditionName($conditionName);
 
         $content = $gridBlock->getCsvFile();
@@ -79,5 +75,12 @@ class Exportrates extends \Magento\Config\Controller\Adminhtml\System\AbstractCo
     public function getVendorId()
     {
         return 'admin';
+    }
+
+    protected function getConditionName($paramConditionName) {
+        if ($paramConditionName) {
+            return $paramConditionName;
+        }
+        return $this->getVendorId();
     }
 }

@@ -27,15 +27,13 @@ class Stock extends \Wyomind\AdvancedInventory\Model\Stock
         }
         $sql .= implode(",", $fields);
         $sql .= " FROM $advancedinventoryItem GROUP BY id )";
-
-        if (count($pos) && $this->_getWriteConnection()->query($sqldelete)) {
-            if (count($pos) && $this->_getWriteConnection()->query($sql)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
+        if (!count($pos) || !$this->_getWriteConnection()->query($sqldelete)) {
             return false;
         }
+        if (!count($pos) || !$this->_getWriteConnection()->query($sql)) {
+            return false;
+        }
+
+        return true;
     }
 }

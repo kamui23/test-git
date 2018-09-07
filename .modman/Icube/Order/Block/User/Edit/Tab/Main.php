@@ -4,6 +4,22 @@ namespace Icube\Order\Block\User\Edit\Tab;
 
 class Main extends \Magento\User\Block\User\Edit\Tab\Main
 {
+    protected $_objectManager;
+
+    public function __construct(
+        \Magento\Backend\Block\Template\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Data\FormFactory $formFactory,
+        \Magento\Backend\Model\Auth\Session $authSession,
+        \Magento\Framework\Locale\ListsInterface $localeLists,
+        \Magento\Framework\App\ObjectManager $objectManager,
+        array $data = []
+    ) {
+        parent::__construct($context, $registry, $formFactory, $authSession, $localeLists, $data);
+        $this->_objectManager = $objectManager;
+    }
+
+
     /**
      * Prepare form fields
      *
@@ -22,9 +38,13 @@ class Main extends \Magento\User\Block\User\Edit\Tab\Main
 
         $baseFieldset = $form->addFieldset('base_fieldset', ['legend' => __('Account Information')]);
 
+        $isError = true;
         if ($model->getUserId()) {
             $baseFieldset->addField('user_id', 'hidden', ['name' => 'user_id']);
-        } else {
+            $isError = false;
+        }
+
+        if($isError) {
             if (!$model->hasData('is_active')) {
                 $model->setIsActive(1);
             }
@@ -80,11 +100,7 @@ class Main extends \Magento\User\Block\User\Edit\Tab\Main
         );
 
         $isNewObject = $model->isObjectNew();
-        if ($isNewObject) {
-            $passwordLabel = __('Password');
-        } else {
-            $passwordLabel = __('New Password');
-        }
+        $passwordLabel = __($this->getPasswordLabel($isNewObject));
         $confirmationLabel = __('Password Confirmation');
         $this->_addPasswordFields($baseFieldset, $passwordLabel, $confirmationLabel, $isNewObject);
 
@@ -115,8 +131,7 @@ class Main extends \Magento\User\Block\User\Edit\Tab\Main
             );
         }
 
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $posCol = $om->create('Wyomind\PointOfSale\Model\PointOfSale')->getCollection();
+        $posCol = $this->_objectManager->create('Wyomind\PointOfSale\Model\PointOfSale')->getCollection();
         $storecode[] = array('value' => null, 'label' => 'No Store');
         $storecode[] = array('value' => 'all', 'label' => 'All Store');
         foreach ($posCol as $pos) {
@@ -158,8 +173,7 @@ class Main extends \Magento\User\Block\User\Edit\Tab\Main
         unset($data['password']);
         unset($data[self::CURRENT_USER_PASSWORD_FIELD]);
         if (isset($data['user_id'])) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $adminpos = $objectManager->create('Icube\Order\Model\AdminPos');
+            $adminpos = $this->_objectManager->create('Icube\Order\Model\AdminPos');
             $getadmin = $adminpos->load($data['user_id'], 'user_id');
             $data['store_permission'] = $getadmin['store_code'];
         }
@@ -168,5 +182,12 @@ class Main extends \Magento\User\Block\User\Edit\Tab\Main
         $this->setForm($form);
 
         return \Magento\Backend\Block\Widget\Form\Generic::_prepareForm();
+    }
+
+    protected function getPasswordLabel($isNewObject) {
+        if ($isNewObject) {
+            return 'Password';
+        }
+        return 'New Password';
     }
 }

@@ -30,9 +30,12 @@ class Payrestriction extends \Amasty\Payrestriction\Plugin\Payrestriction
         $hasBackOrders = false;
         $hasNoBackOrders = false;
         foreach ($items as $item) {
+            $noBackOrders = true;
             if ($item->getBackorders() > 0) {
                 $hasBackOrders = true;
-            } else {
+                $noBackOrders = false;
+            }
+            if($noBackOrders) {
                 $hasNoBackOrders = true;
             }
             if ($hasBackOrders && $hasNoBackOrders) {

@@ -172,14 +172,15 @@ class Vtweb extends \Magento\Payment\Model\Method\AbstractMethod
         $this->_debug($debugData);
 
         // $this->mapGatewayResponse($responseData, $this->getResponse());
+        $isError = true;
         if (count($responseData) > 2) {
             $order = $this->getOrder(sprintf("%010s", $responseData['InvId']));
-
-
             if ($order) {
                 echo $this->_processOrder($order, $responseData);
             }
-        } else {
+            $isError = false;
+        }
+        if($isError) {
             echo "errors";
         }
     }

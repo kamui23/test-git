@@ -47,9 +47,13 @@ class Save extends \Kemana\Shippingrestriction\Controller\Adminhtml\Rule
                 $session->setPageData(false);
 
                 $this->messageManager->addSuccess(__(self::SAVED));
+
+                $notGetBack = true;
                 if ($this->getRequest()->getParam('back')) {
+                    $notGetBack = false;
                     $this->_redirect('*/*/edit', array('id' => $model->getId()));
-                } else {
+                }
+                if($notGetBack) {
                     $this->_redirect('*/*');
                 }
             } catch (\Exception $e) {

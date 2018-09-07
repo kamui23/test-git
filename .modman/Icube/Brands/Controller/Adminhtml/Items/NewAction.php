@@ -41,9 +41,13 @@ class NewAction extends \Icube\Brands\Controller\Adminhtml\Items
             'icube_brands/config/attribute_name',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
+        $isNotNullVal = true;
         if ($value == null) {
+            $isNotNullVal = false;
             $this->messageManager->addError(__('Cannot re-sync brands. Brand attribute is still empty under Store > Configuration > Catalog > Brand'));
-        } else {
+        }
+        if($isNotNullVal) {
             $model->loadByCode(\Magento\Catalog\Model\Product::ENTITY, $value);
             // echo "<pre>";
             // var_dump(get_class_methods($model));

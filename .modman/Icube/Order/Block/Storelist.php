@@ -18,7 +18,7 @@ class Storelist extends \Magento\Framework\View\Element\Template
 
     public function getStoreList()
     {
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        // $om = \Magento\Framework\App\ObjectManager::getInstance();
 
         $posCol = $this->_posFactory->create()->getCollection();
         $places = array();

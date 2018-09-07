@@ -38,6 +38,8 @@ class ProductRuleProvider
      */
     protected $_productCollectionFactory;
 
+    protected $_scopeConfig;
+
 
     /**
      * Cached restricted product IDs
@@ -61,7 +63,8 @@ class ProductRuleProvider
         \Icube\Brands\Model\BrandFactory $brand,
         \Magento\Catalog\Model\ProductFactory $productCollectionFactory,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
-        \Magento\Framework\App\Cache\Type\Collection $collectionCache
+        \Magento\Framework\App\Cache\Type\Collection $collectionCache,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     )
     {
         $this->customerSession = $customerSession;
@@ -70,6 +73,7 @@ class ProductRuleProvider
         $this->brand = $brand;
         $this->localeDate = $localeDate;
         $this->collectionCache = $collectionCache;
+        $this->_scopeConfig = $scopeConfig;
     }
 
     public function getBrandsIdsNotActive()
@@ -99,9 +103,7 @@ class ProductRuleProvider
             $collection->addAttributeToSelect('*');
             // var_dump(get_class_methods($collection));
             //     	die;
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-            $value = $scopeConfig->getValue(
+            $value = $this->_scopeConfig->getValue(
                 'icube_brands/config/attribute_name',
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );

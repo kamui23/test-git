@@ -32,18 +32,9 @@ class Storelistajax extends \Magento\Framework\App\Action\Action
 
         // try {
         $params = $this->getRequest()->getParams();
-        if ($params['page'] == 'pdp' && $params['product_id'] != NULL) {
-            $storelist = $this->_objectManager->create('Icube\Order\Helper\Data')->getStorelistPdp($params['product_id'], $params['product_qty'], $params['store_code']);
-        } else {
-            $storelist = $this->_objectManager->create('Icube\Order\Helper\Data')->getStorelist($params['store_code']);
-        }
-
-
-        if (count($storelist) > 0) {
-            $response['status'] = 'success';
-        } else {
-            $response['status'] = 'error';
-        }
+        $storelist = $this->getStoreList($params);
+        $statusTxt = $this->getResponseStatus($storelist);
+        $response['status'] = $statusTxt;
 
         // foreach ($storelist as $data) {
         //   $id = $data['state'];
@@ -83,6 +74,22 @@ class Storelistajax extends \Magento\Framework\App\Action\Action
         $this->getResponse()->representJson(
             $this->_objectManager->get('Magento\Framework\Json\Helper\Data')->jsonEncode($response)
         );
+    }
+
+    protected function getStoreList($params) {
+        if ($params['page'] == 'pdp' && $params['product_id'] != NULL) {
+            $storelist = $this->_objectManager->create('Icube\Order\Helper\Data')->getStorelistPdp($params['product_id'], $params['product_qty'], $params['store_code']);
+            return $storelist;
+        }
+        $storelist = $this->_objectManager->create('Icube\Order\Helper\Data')->getStorelist($params['store_code']);
+        return $storelist;
+    }
+
+    protected function getResponseStatus($storelist) {
+        if (count($storelist) > 0) {
+            return 'success';
+        }
+        return 'error';
     }
 }
 

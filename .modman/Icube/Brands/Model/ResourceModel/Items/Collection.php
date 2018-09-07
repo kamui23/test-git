@@ -109,6 +109,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         $customer = $this->_customerSession;
         $customerData = $customer->getCustomer();
 
+        $groupIdentify = 0;
         if ($this->_helper->isLoggedIn()) {
             $customer = $this->_customer->load($_SESSION[$session]['customer_id']);
             $groupId = $customer->getGroupId();
@@ -118,10 +119,9 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
                 $joinConditions,
                 []
             )->where("kemana_brands_customer.customer_group_id=" . $groupId);
-            $this->addBrandsFilter($store->getId(), $groupId);
-        } else {
-            $this->addBrandsFilter($store->getId(), 0);
+            $groupIdentify = $groupId;
         }
+        $this->addBrandsFilter($store->getId(), $groupIdentify);
         $this->addActiveFilter();
 
         // $joinConditions = 'e.entity_id = store_price.product_id';
@@ -265,14 +265,17 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
             if (isset($brands) && $brands) {
                 foreach ($this as $item) {
                     $brandsId = $item->getData('id');
-                    if (!isset($brands[$brandsId])) {
-                        $item->setData('store_ids', [\Magento\Store\Model\Store::DEFAULT_STORE_ID]);
-                        $item->setData('customer_group_ids', [\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID]);
-                    } else {
+                    $isError = true;
+                    if (isset($brands[$brandsId])) {
                         $item->setData('store_ids', $brands[$brandsId]['store_ids']);
                         $item->setData('customer_group_ids', $brands[$brandsId]['customer_group_ids']);
+                        $isError = false;
                     }
 
+                    if($isError) {
+                        $item->setData('store_ids', [\Magento\Store\Model\Store::DEFAULT_STORE_ID]);
+                        $item->setData('customer_group_ids', [\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID]);
+                    }
                 }
             }
 

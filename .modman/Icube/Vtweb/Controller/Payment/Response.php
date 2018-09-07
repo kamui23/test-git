@@ -49,7 +49,7 @@ class Response extends \Magento\Framework\App\Action\Action
         $session = $om->get('Magento\Checkout\Model\Session');
         $quote = $session->getQuote();
 
-
+        $isError = true;
         if (isset($_GET['order_id'])) {
             $config = $om->get('Magento\Framework\App\Config\ScopeConfigInterface');
             $prefix = $config->getValue('payment/vtweb/prefix', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
@@ -65,15 +65,19 @@ class Response extends \Magento\Framework\App\Action\Action
             $_info = "status : " . $status . " , orderid : " . $orderId . ".";
             $logger->info($_info);
 
+            $isBadStatus = true;
             if (($status == '200' or $status == '201') && !is_null($orderId) && $orderId != '') {
                 return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
             } else if ($status == '202' && $transStatus == 'deny' && !is_null($orderId) && $orderId != '') {
                 $this->fromOrderId($orderId);
                 // Back to merchant - reorder
-            } else {
+                $isBadStatus = false;
+            }
+            if($isBadStatus) {
                 $this->fromOrderId($orderId);
                 // Back to merchant - reorder
             }
+            $isError = false;
         } else if (isset($_GET['id'])) { // BCA klikpay
             $config = $om->get('Magento\Framework\App\Config\ScopeConfigInterface');
 
@@ -82,12 +86,12 @@ class Response extends \Magento\Framework\App\Action\Action
             $data = \Veritrans_Transaction::status($_GET['id']);
             if ($data->transaction_status == 'settlement') {
                 return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
-            } else {
-                $orderId = $_GET['order_id'];
-                $this->fromOrderId($orderId);
             }
-
-        } else {
+            $orderId = $_GET['order_id'];
+            $this->fromOrderId($orderId);
+            $isError = false;
+        }
+        if($isError) {
             return $this->resultRedirectFactory->create()->setPath('/');
         }
 
