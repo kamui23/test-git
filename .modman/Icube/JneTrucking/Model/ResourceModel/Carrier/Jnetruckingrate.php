@@ -230,8 +230,7 @@ class Jnetruckingrate extends \Magento\Framework\Model\ResourceModel\Db\Abstract
                         $isNotDimensional = true;
                         if ($dimensional_condition == 1) {
                             foreach ($items as $item) {
-                                $product = $this->_objectManager->create('Magento\Catalog\Model\Product')
-                                    ->load($item->getProductId());
+                                $product = $this->_objectManager->create('Magento\Catalog\Model\Product')->load($item->getProductId());
 
                                 //product dimension in cm
                                 $height = $product->getData('dimension_package_height');

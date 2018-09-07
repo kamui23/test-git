@@ -14,7 +14,7 @@ class Advancerate extends \Ced\Advancerate\Model\ResourceModel\Carrier\Advancera
         \Ced\Advancerate\Model\Carrier\Advancerate $carrierTablerate,
         \Magento\Directory\Model\ResourceModel\Country\CollectionFactory $countryCollectionFactory,
         \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionCollectionFactory,
-        Filesystem $filesystem,
+        \Magento\Framework\Filesystem $filesystem,
         \Magento\Catalog\Model\Session $citySession,
         \Magento\Framework\App\ObjectManager $objectManager,
         $connectionName = null

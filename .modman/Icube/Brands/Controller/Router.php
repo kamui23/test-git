@@ -26,8 +26,6 @@ class Router implements \Magento\Framework\App\RouterInterface
      */
     protected $_response;
 
-    protected $_branchFactory;
-
     /**
      * @param \Magento\Framework\App\ActionFactory $actionFactory
      * @param \Magento\Framework\App\ResponseInterface $response
