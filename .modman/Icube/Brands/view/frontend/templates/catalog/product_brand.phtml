@@ -1,0 +1,21 @@
+<?php
+$media = $this->getImageMediaPath();
+$_fbrand = $block->getBrand();
+$helper = $this->helper('Icube\Brands\Helper\Data');
+$config = $helper->getConfig();
+?>
+<span class="product-brand" style="float: left; clear: both; width: 100%;">
+	<?php if($_fbrand->getCategoryUrl()):?>
+		<a href="<?php echo $this->getUrl('brand').$_fbrand->getCategoryUrl()?>">
+	<?php else:?>
+		<a href="<?php echo $this->getUrl('catalogsearch/advanced/result/').'?'.$config.'[]='.$_fbrand->getAttributeId();?>">
+	<?php endif;?>
+		<?php if($_fbrand->getLogo()):?>
+			<img class="f-barnd-img" src="<?php echo $media.$_fbrand->getLogo() ?>" title="<?php echo $_fbrand->getName();?>" alt="<?php echo $_fbrand->getName();?>" style="height:40px"/>
+		<?php else:?>
+			<span class="brand-title">
+				<?php echo $_fbrand->getName();?>
+			</span>
+		<?php endif;?>
+	</a>
+</span>

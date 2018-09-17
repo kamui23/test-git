@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Icube. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+		<add id="Icube_Order::store" title="Icube Store" module="Icube_Order" sortOrder="20" resource="Icube_Order::store"/>
+		
+        <add id="Icube_Order::icube_storedashboard" title="Store Dashboard" module="Icube_Order" parent="Icube_Order::store" sortOrder="20" action="storedashboard/storedashboard/index" resource="Icube_Order::storedashboard"/>
+
+    </menu>
+</config>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2017 Icube, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Store/etc/config.xsd">
+    <default>
+        <payment>
+            <vtweb>
+                <active>1</active>
+                <title>VT-Web</title>
+                <!-- <login_id backend_model="Magento\Config\Model\Config\Backend\Encrypted" /> -->
+                <pass_word_1 backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <pass_word_2 backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <order_status>pending</order_status>
+                <instructions>You will be redirected to Veritrans Page.</instructions>
+                <payment_action>true</payment_action>
+                <is_production>0</is_production>
+                <is_3ds>0</is_3ds>
+                <model>Icube\Vtweb\Model\Vtweb</model>
+                <group>offline</group>
+            </vtweb>
+        </payment>
+    </default>
+</config>

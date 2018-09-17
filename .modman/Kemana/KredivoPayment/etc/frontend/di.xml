@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Kredivo\Payment\Controller\Payment\Redirect">
+        <plugin name="paymentRedirectPlugin" type="Kemana\KredivoPayment\Plugin\Payment\RedirectPlugin" sortOrder="1" />
+    </type>
+
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="kredivo_payment_instructions_config_provider" xsi:type="object">Kemana\KredivoPayment\Model\InstructionsConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

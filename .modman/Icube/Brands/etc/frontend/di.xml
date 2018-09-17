@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\App\RouterList">
+        <arguments>
+            <argument name="routerList" xsi:type="array">
+                <item name="icubebrands" xsi:type="array">
+                    <item name="class" xsi:type="string">Icube\Brands\Controller\Router</item>
+                    <item name="disable" xsi:type="boolean">false</item>
+                    <item name="sortOrder" xsi:type="string">10</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- <type name="Magento\Catalog\Model\Product">
+        <plugin name="icube_brands_product_getisSalable" type="Icube\Brands\Plugin\Catalog\Model\Product\IsAvailable" />
+    </type> -->
+
+   <!--  <type name="Magento\Catalog\Block\Product\ListProduct">
+        <plugin name="icube_brands_product_listProduct" type="Icube\Brands\Plugin\Catalog\Block\ListProduct" />
+    </type> -->
+    <!-- <preference for="Magento\Catalog\Block\Product\ListProduct" type="Icube\Brands\Block\Product\ListProduct" />    
+    <preference for="Magento\Catalog\Block\Navigation" type="Icube\Brands\Block\Navigation" />    
+    <type name="Magento\Catalog\Model\Layer">
+        <plugin name="icube_brands_product_layer" type="Icube\Brands\Plugin\Catalog\Model\Layer" />
+    </type>
+  
+
+    <type name="Magento\Catalog\Block\Product\ProductList\Toolbar">
+        <plugin name="custom_product_toolbar" type="Icube\Brands\Plugin\Catalog\Block\Product\ProductList\Toolbar" />
+    </type>
+    <type name="Magento\Catalog\Model\ResourceModel\Product\Collection">
+        <plugin name="icube_brands_product_collection" type="Icube\Brands\Plugin\Catalog\Model\ResourceModel\Product\Collection" />
+    </type> -->
+      <type name="Magento\Catalog\Controller\Product\View">
+        <plugin name="icube_brands_product_view" type="Icube\Brands\Plugin\Catalog\Controller\Product\View" />
+    </type> 
+    <type name="Magento\Catalog\Block\Product\ProductList\Toolbar">
+        <plugin name="filter_atribute" type="Icube\Brands\Plugin\Catalog\Block\Product\ProductList\Toolbar" sortOrder="1000"/>
+    </type>
+     <type name="Magento\Catalog\Model\Layer">
+        <plugin name="product_layer_brands" type="Icube\Brands\Plugin\Catalog\Model\Layer" sortOrder="80"/>
+    </type>
+      <virtualType name="categoryFilterList" type="Magento\Catalog\Model\Layer\FilterList">
+        <arguments>
+            <argument name="filters" xsi:type="array">
+                <item name="attribute" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Attribute</item>
+                <item name="price" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Price</item>
+                <item name="decimal" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Decimal</item>
+                <item name="category" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Category</item>
+            </argument>
+        </arguments>
+    </virtualType>
+   <!--  <virtualType name="categoryFilterList" type="Magento\Catalog\Model\Layer\FilterList">
+        <arguments>
+            <argument name="filters" xsi:type="array">
+                <item name="attribute" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Attribute</item>
+                <item name="price" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Price</item>
+                <item name="decimal" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Decimal</item>
+                <item name="category" xsi:type="string">Magento\Catalog\Model\Layer\Filter\Category</item>
+            </argument>
+        </arguments>
+    </virtualType> -->
+
+    
+</config>
