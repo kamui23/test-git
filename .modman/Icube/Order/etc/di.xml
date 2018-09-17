@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="Ced\Advancerate\Model\ResourceModel\Carrier\Advancerate" type="Icube\Order\Model\Rewrite\Carrier\Advancerate" />
-    <preference for="Magento\Sales\Model\Order\Email\Sender\OrderSender" type="Icube\Order\Model\Rewrite\Order\Email\Sender\OrderSender" />
-    <preference for="Magento\User\Block\User\Edit\Tab\Main" type="Icube\Order\Block\User\Edit\Tab\Main" />
-    <preference for="Magento\User\Controller\Adminhtml\User\Save" type="Icube\Order\Controller\Adminhtml\User\Save" />
-    <preference for="Mageplaza\Osc\Controller\Index\Index" type="Icube\Order\Controller\Rewrite\Osc\Index\Index" />
-</config>

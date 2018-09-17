@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Wyomind\PointOfSale\Helper\Data">
-        <plugin name="kemana_icubeorderfix_plugin_wyomind_pointofsale_helper_data" type="Kemana\IcubeOrderFix\Plugin\Wyomind\PointOfSale\Helper\Data" />
-    </type>
-    <type name="Magento\Checkout\Block\Onepage">
-        <plugin name="kemana_icubeorderfix_plugin_magento_checkout_block_onepage" type="Kemana\IcubeOrderFix\Plugin\Magento\Checkout\Block\Onepage"/>
-    </type>
-</config>

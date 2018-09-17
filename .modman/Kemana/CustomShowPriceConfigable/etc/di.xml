@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Magento\ConfigurableProduct\Pricing\Price\ConfigurablePriceResolver">
-        <plugin name="CustomShowPriceConfigurable" type="Kemana\CustomShowPriceConfigable\Plugin\Pricing\Price\ConfigurablePriceResolver" sortOrder="10" />
-    </type>
-</config>
