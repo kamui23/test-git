@@ -3,3 +3,4 @@ pull: new pull
 add: new test
 conflict: Dòng lệnh này sẽ được xử lý conflict
 conflict: Đã xử lý xong
+test: Phần này dành cho xử lý pull request
