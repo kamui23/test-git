@@ -1,3 +1,4 @@
 	Đến cả con khỉ cũng hiểu được lệnh Git
 	add: Đăng ký thay đổi trong index
 	conflict: Thêm giải thích về conflict
+	test: this test is in branch test
