@@ -4,3 +4,4 @@ add: new test
 conflict: Dòng lệnh này sẽ được xử lý conflict
 conflict: Đã xử lý xong
 branch: test create branch from local
+test: Phần này dành cho xử lý pull request
