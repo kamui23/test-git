@@ -2,3 +2,4 @@
 	add: Đăng ký thay đổi trong index
 	conflict: Thêm giải thích về conflict
 	test: this test is in branch test
+	issue-1: Đây là solution cho issue 1
