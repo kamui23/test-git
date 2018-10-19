@@ -5,3 +5,5 @@ conflict: Dòng lệnh này sẽ được xử lý conflict
 conflict: Đã xử lý xong
 branch: test create branch from local
 test: Phần này dành cho xử lý pull request
+test revert: Thêm mô tả cho revert
+test merge: thêm mô tả cho merge
