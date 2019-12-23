@@ -8,4 +8,5 @@ test: Phần này dành cho xử lý pull request
 test revert: Thêm mô tả cho revert
 test reset: them mo ta reset2
 test reset: them mo ta reset1
+test cherry: pick
 test merge: thêm mô tả cho merge
