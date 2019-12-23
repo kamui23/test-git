@@ -9,4 +9,6 @@ test revert: Thêm mô tả cho revert
 test reset: them mo ta reset2
 test reset: them mo ta reset1
 test cherry: pick
+
+test cherry pick2
 test merge: thêm mô tả cho merge
